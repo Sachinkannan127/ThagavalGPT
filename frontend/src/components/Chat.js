@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { chatService, authService } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
+import Settings from './Settings';
 import './Chat.css';
 
 function Chat({ user, onLogout }) {
+  const { theme, toggleTheme } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sessionId, setSessionId] = useState(null);
+  const [sessions, setSessions] = useState([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -21,7 +26,17 @@ function Chat({ user, onLogout }) {
 
   useEffect(() => {
     loadChatHistory();
+    loadSessions();
   }, []);
+
+  const loadSessions = async () => {
+    try {
+      const data = await chatService.getSessions();
+      setSessions(data.sessions || []);
+    } catch (err) {
+      console.error('Failed to load sessions:', err);
+    }
+  };
 
   const loadChatHistory = async () => {
     try {
@@ -100,6 +115,27 @@ function Chat({ user, onLogout }) {
     }
   };
 
+  const switchSession = async (newSessionId) => {
+    try {
+      setSessionId(newSessionId);
+      const data = await chatService.getHistory(newSessionId);
+      setMessages(data.history);
+    } catch (err) {
+      console.error('Failed to switch session:', err);
+    }
+  };
+
+  const createNewChat = async () => {
+    try {
+      const data = await chatService.createNewSession();
+      setSessionId(data.session_id);
+      setMessages([]);
+      await loadSessions();
+    } catch (err) {
+      console.error('Failed to create new session:', err);
+    }
+  };
+
   const examplePrompts = [
     "Explain quantum computing in simple terms",
     "Write a Python function to sort a list",
@@ -132,7 +168,7 @@ function Chat({ user, onLogout }) {
         </div>
 
         <div className="sidebar-content">
-          <button className="new-chat-btn" onClick={clearChat}>
+          <button className="new-chat-btn" onClick={createNewChat}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round"/>
             </svg>
@@ -140,21 +176,31 @@ function Chat({ user, onLogout }) {
           </button>
 
           <div className="sidebar-section">
-            <h3>Quick Actions</h3>
-            <div className="quick-actions">
-              <button className="action-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path d="M12 16v-4M12 8h.01" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                Help
-              </button>
-              <button className="action-btn" onClick={clearChat}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                Clear History
-              </button>
+            <h3>Past Conversations</h3>
+            <div className="conversations-list">
+              {sessions.length > 0 ? (
+                sessions.slice(0, 10).map((session) => (
+                  <button 
+                    key={session.id} 
+                    className={`conversation-item ${sessionId === session.id ? 'active' : ''}`}
+                    onClick={() => switchSession(session.id)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" strokeWidth="2"/>
+                    </svg>
+                    <span className="conversation-title">
+                      {session.title || `Chat ${session.id}`}
+                    </span>
+                    <span className="conversation-time">
+                      {new Date(session.updated_at).toLocaleDateString()}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <div className="no-conversations">
+                  <p>No past conversations</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -186,6 +232,26 @@ function Chat({ user, onLogout }) {
             </svg>
           </button>
           <h1>Chat Assistant</h1>
+          <div className="header-actions">
+            <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle theme">
+              {theme === 'dark' ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="5" strokeWidth="2"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              )}
+            </button>
+            <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="3" strokeWidth="2"/>
+                <path d="M12 1v6m0 6v10M1 12h6m6 0h10" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="chat-messages">
@@ -305,6 +371,8 @@ function Chat({ user, onLogout }) {
           </p>
         </div>
       </div>
+      
+      <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }
