@@ -35,7 +35,19 @@ function Login({ onLogin }) {
       
       onLogin(data.access_token, data.user);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Authentication failed. Please try again.';
+      console.error('Authentication error:', err);
+      console.error('Error response:', err.response);
+      
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message === 'Network Error') {
+        errorMessage = 'Cannot connect to server. Please ensure the backend is running on http://localhost:5000';
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMessage = 'Network error. Please check if the backend server is running.';
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
