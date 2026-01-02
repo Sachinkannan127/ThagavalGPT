@@ -8,7 +8,7 @@ echo ============================================================
 echo.
 
 echo Starting Backend Server...
-start "ThagavalGPT Backend" cmd /k "cd backend && venv\Scripts\activate && python app.py"
+start "ThagavalGPT Backend" cmd /k "cd backend && ..\.venv\Scripts\activate && python app.py"
 
 timeout /t 3 /nobreak >nul
 
