@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #343541;
+  background: #ffffff;
   position: relative;
 }
 
@@ -15,122 +15,161 @@
   justify-content: center;
   padding: 40px;
   text-align: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
 }
 
 .welcome-screen h1 {
-  font-size: 48px;
-  font-weight: 600;
-  color: #ececf1;
-  margin-bottom: 16px;
+  font-size: 56px;
+  font-weight: 700;
+  color: transparent;
+  margin-bottom: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
 }
 
 .welcome-screen p {
   font-size: 20px;
-  color: #8e8ea0;
-  margin-bottom: 40px;
+  color: #6c757d;
+  margin-bottom: 50px;
+  font-weight: 500;
 }
 
 .example-prompts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  max-width: 800px;
+  gap: 20px;
+  max-width: 900px;
   width: 100%;
 }
 
 .example-prompts button {
-  padding: 20px;
-  background: #2a2b32;
-  border: 1px solid #4d4d4f;
-  border-radius: 8px;
-  color: #ececf1;
-  font-size: 14px;
+  padding: 24px;
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  color: #495057;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-align: left;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.example-prompts button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .example-prompts button:hover {
-  background: #343541;
+  background: #f8f9fa;
   border-color: #667eea;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.example-prompts button:hover::before {
+  transform: scaleX(1);
 }
 
 .messages-container {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
 }
 
 .input-container {
-  padding: 20px;
-  background: #343541;
-  border-top: 1px solid #4d4d4f;
+  padding: 24px;
+  background: #ffffff;
+  border-top: 1px solid #e9ecef;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .input-form {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   gap: 12px;
-  background: #40414f;
-  border-radius: 12px;
-  padding: 12px;
-  border: 1px solid #565869;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.input-form:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.2);
 }
 
 .input-form textarea {
   flex: 1;
   background: transparent;
   border: none;
-  color: #ececf1;
+  color: #2c3e50;
   font-size: 16px;
   resize: none;
   outline: none;
   max-height: 200px;
   font-family: inherit;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .input-form textarea::placeholder {
-  color: #8e8ea0;
+  color: #adb5bd;
 }
 
 .input-form button {
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #fff;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .input-form button:hover:not(:disabled) {
-  background: #5568d3;
+  background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
 .input-form button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .input-disclaimer {
   text-align: center;
-  color: #8e8ea0;
-  font-size: 12px;
-  margin-top: 12px;
-  max-width: 800px;
+  color: #6c757d;
+  font-size: 13px;
+  margin-top: 16px;
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  font-weight: 500;
 }
 
 .loading-dots {
