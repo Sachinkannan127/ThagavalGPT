@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import Logo from '../Logo';
 import './Auth.css';
 
 const ForgotPassword = () => {
@@ -27,6 +28,9 @@ const ForgotPassword = () => {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <Logo size="large" showText={false} />
+          </div>
           <h1>ThagavalGPT</h1>
           <h2>Reset your password</h2>
         </div>

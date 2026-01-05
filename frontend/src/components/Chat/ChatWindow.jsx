@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
 import { ChatContext } from '../../context/ChatContext';
 import ChatMessage from './ChatMessage';
+import Logo from '../Logo';
 import './ChatWindow.css';
 
 const ChatWindow = () => {
@@ -42,6 +43,9 @@ const ChatWindow = () => {
     <div className="chat-window">
       {messages.length === 0 && !currentConversation ? (
         <div className="welcome-screen">
+          <div style={{ marginBottom: '30px' }}>
+            <Logo size="large" showText={false} />
+          </div>
           <h1>ThagavalGPT</h1>
           <p>How can I help you today?</p>
           <div className="example-prompts">

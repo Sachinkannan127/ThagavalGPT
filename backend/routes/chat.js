@@ -62,12 +62,23 @@ router.post('/chat', verifyToken, async (req, res) => {
   try {
     const { message, conversationId } = req.body;
     
+    console.log('📩 Received chat request:', { 
+      user: req.user?.email || req.user?.uid,
+      messageLength: message?.length,
+      conversationId 
+    });
+    
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+      return res.status(400).json({ 
+        error: 'Message is required',
+        message: 'Please enter a message'
+      });
     }
 
     // Generate AI response
+    console.log('🤖 Generating AI response...');
     const aiResponse = await generateAIResponse(message);
+    console.log('✅ AI response generated successfully');
 
     res.json({
       message: aiResponse,
@@ -75,8 +86,11 @@ router.post('/chat', verifyToken, async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Chat error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('❌ Chat error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate response',
+      message: error.message || 'Internal server error. Please try again.'
+    });
   }
 });
 

@@ -103,6 +103,7 @@ export const ChatProvider = ({ children }) => {
 
   const sendMessageToConversation = async (conversationId, content) => {
     setLoading(true);
+    let userMsg = null;
     
     try {
       // Add user message to Firestore
@@ -114,14 +115,18 @@ export const ChatProvider = ({ children }) => {
       };
       
       const userMessageRef = await addDoc(collection(db, 'messages'), userMessage);
-      const userMsg = { id: userMessageRef.id, ...userMessage };
+      userMsg = { id: userMessageRef.id, ...userMessage };
       setMessages(prev => [...prev, userMsg]);
 
+      console.log('Sending message to backend API...');
+      
       // Call backend API for AI response
       const response = await api.post('/api/chat', {
         message: content,
         conversationId: conversationId
       });
+
+      console.log('Received AI response:', response.data);
 
       // Add AI response to Firestore
       const aiMessage = {
@@ -137,7 +142,32 @@ export const ChatProvider = ({ children }) => {
 
       return aiMsg;
     } catch (error) {
-      toast.error('Error sending message');
+      console.error('Send message error:', error);
+      
+      // Determine error message
+      let errorMessage = 'Error sending message';
+      
+      if (error.response) {
+        // Server responded with error
+        errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
+        console.error('Server error:', error.response.status, error.response.data);
+      } else if (error.request) {
+        // Request made but no response
+        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
+        console.error('Network error:', error.request);
+      } else {
+        // Something else happened
+        errorMessage = error.message || errorMessage;
+        console.error('Request setup error:', error.message);
+      }
+      
+      toast.error(errorMessage);
+      
+      // Remove the user message if there's an error and we added one
+      if (userMsg) {
+        setMessages(prev => prev.filter(m => m.id !== userMsg.id));
+      }
+      
       throw error;
     } finally {
       setLoading(false);

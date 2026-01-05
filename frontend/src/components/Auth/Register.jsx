@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import Logo from '../Logo';
 import './Auth.css';
 
 const Register = () => {
@@ -39,6 +40,9 @@ const Register = () => {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <Logo size="large" showText={false} />
+          </div>
           <h1>ThagavalGPT</h1>
           <h2>Create your account</h2>
         </div>

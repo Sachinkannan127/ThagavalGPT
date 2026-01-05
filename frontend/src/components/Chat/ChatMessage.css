@@ -6,13 +6,13 @@
 }
 
 .message-wrapper.user-message {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: var(--message-user-bg);
 }
 
 .message-wrapper.assistant-message {
-  background: #ffffff;
-  border-top: 1px solid #f1f3f5;
-  border-bottom: 1px solid #f1f3f5;
+  background: var(--message-assistant-bg);
+  border-top: 1px solid var(--message-border);
+  border-bottom: 1px solid var(--message-border);
 }
 
 .message-content {
@@ -31,10 +31,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: #f8f9fa;
-  color: #495057;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .user-message .message-icon {
@@ -51,7 +51,7 @@
 
 .message-text {
   flex: 1;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 16px;
   line-height: 1.8;
   white-space: pre-wrap;
