@@ -10,12 +10,25 @@ const router = express.Router();
 // Initialize Gemini AI
 let genAI;
 let model;
+let modelName = null;
 
 if (process.env.GEMINI_API_KEY) {
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  // Using Gemini 1.5 Flash model (fast and efficient)
-  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  console.log('✅ Gemini AI initialized with Gemini 1.5 Flash model');
+  
+  // List of models to try (from most compatible to newest)
+  const modelOptions = [
+    "gemini-pro",           // Most widely available, free tier
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro-latest",
+    "gemini-1.5-pro"
+  ];
+  
+  // Use the most basic model
+  modelName = modelOptions[0];
+  model = genAI.getGenerativeModel({ model: modelName });
+  console.log(`✅ Gemini AI initialized with ${modelName} model`);
+  console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
 } else {
   console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
 }
@@ -47,21 +60,32 @@ const generateAIResponse = async (message, conversationHistory = []) => {
     return response.text();
   } catch (error) {
     console.error('Gemini API Error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText,
+      cause: error.cause
+    });
     
-    // Provide more specific error messages
-    if (error.message?.includes('API key')) {
-      throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY in .env file.');
+    // Provide more specific error messages with solutions
+    if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('invalid API key') || error.status === 400) {
+      throw new Error('❌ Invalid API key. Please:\n1. Visit https://aistudio.google.com/app/apikey\n2. Create a new API key\n3. Update GEMINI_API_KEY in backend/.env\n4. Restart the backend server');
     }
     
-    if (error.message?.includes('404') || error.message?.includes('not found')) {
-      throw new Error('Model not available. Please check your Gemini API access.');
+    if (error.message?.includes('404') || error.message?.includes('not found') || error.message?.includes('models/') || error.status === 404) {
+      throw new Error('❌ Model not available. Try this:\n1. Visit https://aistudio.google.com/app/apikey\n2. Generate a NEW API key (old keys may have limited access)\n3. Replace the key in backend/.env\n4. Restart backend');
     }
     
-    if (error.message?.includes('quota') || error.message?.includes('limit')) {
-      throw new Error('API quota exceeded. Please check your Gemini API usage.');
+    if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429') || error.status === 429) {
+      throw new Error('⏳ API quota exceeded. Wait a few minutes or get a new key at https://aistudio.google.com/app/apikey');
     }
     
-    throw new Error(`AI Error: ${error.message || 'Failed to generate response. Please try again.'}`);
+    if (error.message?.includes('PERMISSION_DENIED') || error.status === 403) {
+      throw new Error('🔒 Permission denied. Generate a NEW API key at https://aistudio.google.com/app/apikey (existing keys may have restrictions)');
+    }
+    
+    // Generic error with full details
+    throw new Error(`🤖 AI Error: ${error.message || 'Unknown error'}. Check backend logs for details.`);
   }
 };
 

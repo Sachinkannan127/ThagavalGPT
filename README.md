@@ -180,9 +180,9 @@ service cloud.firestore {
    - Click on conversations in the sidebar to switch between them
    - Click the trash icon to delete a conversation
 
-## AI Integration - Google Gemini (Gemma 3 27B) ✨
+## AI Integration - Google Gemini ✨
 
-ThagavalGPT is now **pre-configured** with Google's Gemini AI using the **Gemma 2 27B** model!
+ThagavalGPT is now **pre-configured** with Google's Gemini AI using the **Gemini 1.5 Flash** model!
 
 ### Quick Setup (3 Steps)
 
@@ -200,11 +200,11 @@ ThagavalGPT is now **pre-configured** with Google's Gemini AI using the **Gemma 
 See [GEMINI_SETUP.md](GEMINI_SETUP.md) for detailed configuration options.
 
 ### Features
-- ✅ Gemma 2 27B model (27 billion parameters)
+- ✅ Gemini 1.5 Flash model (Fast & efficient)
 - ✅ Conversation history context
 - ✅ Configurable temperature & token settings
 - ✅ Automatic error handling
-- ✅ Free tier available
+- ✅ Free tier available (1,500 requests/day)
 
 ## Scripts
 
@@ -216,6 +216,111 @@ See [GEMINI_SETUP.md](GEMINI_SETUP.md) for detailed configuration options.
 ### Backend
 - `npm start` - Start production server
 - `npm run dev` - Start development server with nodemon
+
+## Deployment
+
+### Frontend Deployment (Vercel) 🚀
+
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin your-repo-url
+   git push -u origin main
+   ```
+
+2. **Deploy to Vercel**
+   - Go to [Vercel](https://vercel.com)
+   - Click "New Project" and import your GitHub repository
+   - Configure project:
+     - **Framework Preset**: Vite
+     - **Root Directory**: `frontend`
+     - **Build Command**: `npm run build`
+     - **Output Directory**: `dist`
+
+3. **Add Environment Variables**
+   
+   In Vercel Project Settings > Environment Variables, add:
+   ```
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_API_URL=https://your-backend-url.onrender.com
+   VITE_GEMINI_API_KEY=your_gemini_api_key
+   ```
+
+4. **Deploy**
+   - Click "Deploy"
+   - Your app will be live at `https://your-app.vercel.app`
+
+### Backend Deployment (Render) 🖥️
+
+1. **Prepare Backend for Deployment**
+   
+   Update `backend/package.json` to include start script:
+   ```json
+   "scripts": {
+     "start": "node server.js",
+     "dev": "nodemon server.js"
+   }
+   ```
+
+2. **Deploy to Render**
+   - Go to [Render](https://render.com)
+   - Click "New +" > "Web Service"
+   - Connect your GitHub repository
+   - Configure:
+     - **Name**: thagavalgpt-backend
+     - **Root Directory**: `backend`
+     - **Environment**: Node
+     - **Build Command**: `npm install`
+     - **Start Command**: `npm start`
+     - **Plan**: Free
+
+3. **Add Environment Variables**
+   
+   In Render Dashboard > Environment, add:
+   ```
+   PORT=5000
+   NODE_ENV=production
+   GEMINI_API_KEY=your_gemini_api_key
+   FIREBASE_PROJECT_ID=your_project_id
+   FIREBASE_CLIENT_EMAIL=your_client_email
+   FIREBASE_PRIVATE_KEY=your_private_key
+   ```
+
+   **Note**: For `FIREBASE_PRIVATE_KEY`, wrap the entire key in quotes and keep the `\n` characters
+
+4. **Deploy**
+   - Click "Create Web Service"
+   - Your backend will be live at `https://your-app.onrender.com`
+
+### Post-Deployment Steps
+
+1. **Update Firebase CORS Settings**
+   
+   Update your Firebase Firestore rules to allow your deployed domains
+
+2. **Update Frontend API URL**
+   
+   Make sure `VITE_API_URL` in Vercel points to your Render backend URL
+
+3. **Test Your Deployment**
+   - Visit your Vercel URL
+   - Register/Login
+   - Send a test message
+   - Verify AI responses work
+
+### Important Notes
+
+- **Render Free Tier**: Backend may sleep after 15 minutes of inactivity (first request takes ~30 seconds)
+- **Environment Variables**: Never commit `.env` files to Git
+- **Firebase Quotas**: Monitor your Firebase and Gemini API usage
+- **HTTPS Only**: Both Vercel and Render provide free SSL certificates
 
 ## Technologies Used
 
