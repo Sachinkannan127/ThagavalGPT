@@ -13,9 +13,9 @@ let model;
 
 if (process.env.GEMINI_API_KEY) {
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  // Using Gemma 3 27B model
-  model = genAI.getGenerativeModel({ model: "gemma-2-27b-it" });
-  console.log('✅ Gemini AI initialized with Gemma 3 27B model');
+  // Using Gemini 1.5 Flash model (fast and efficient)
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  console.log('✅ Gemini AI initialized with Gemini 1.5 Flash model');
 } else {
   console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
 }
@@ -25,7 +25,7 @@ const generateAIResponse = async (message, conversationHistory = []) => {
   try {
     if (!model) {
       // Fallback demo response if API key is not configured
-      return `Demo Response: You asked "${message}". Please configure your GEMINI_API_KEY in the .env file to get real AI responses from Gemini (Gemma 3 27B).`;
+      return `Demo Response: You asked "${message}". Please configure your GEMINI_API_KEY in the .env file to get real AI responses from Gemini.`;
     }
 
     // Build conversation history for context
@@ -48,12 +48,20 @@ const generateAIResponse = async (message, conversationHistory = []) => {
   } catch (error) {
     console.error('Gemini API Error:', error);
     
-    // Fallback response on error
+    // Provide more specific error messages
     if (error.message?.includes('API key')) {
       throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY in .env file.');
     }
     
-    throw new Error('Failed to generate AI response. Please try again.');
+    if (error.message?.includes('404') || error.message?.includes('not found')) {
+      throw new Error('Model not available. Please check your Gemini API access.');
+    }
+    
+    if (error.message?.includes('quota') || error.message?.includes('limit')) {
+      throw new Error('API quota exceeded. Please check your Gemini API usage.');
+    }
+    
+    throw new Error(`AI Error: ${error.message || 'Failed to generate response. Please try again.'}`);
   }
 };
 
