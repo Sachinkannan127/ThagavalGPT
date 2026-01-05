@@ -1,0 +1,164 @@
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #343541;
+  position: relative;
+}
+
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.welcome-screen h1 {
+  font-size: 48px;
+  font-weight: 600;
+  color: #ececf1;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-screen p {
+  font-size: 20px;
+  color: #8e8ea0;
+  margin-bottom: 40px;
+}
+
+.example-prompts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.example-prompts button {
+  padding: 20px;
+  background: #2a2b32;
+  border: 1px solid #4d4d4f;
+  border-radius: 8px;
+  color: #ececf1;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.example-prompts button:hover {
+  background: #343541;
+  border-color: #667eea;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+.input-container {
+  padding: 20px;
+  background: #343541;
+  border-top: 1px solid #4d4d4f;
+}
+
+.input-form {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+  background: #40414f;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #565869;
+}
+
+.input-form textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ececf1;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  max-height: 200px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.input-form textarea::placeholder {
+  color: #8e8ea0;
+}
+
+.input-form button {
+  background: #667eea;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.input-form button:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.input-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-disclaimer {
+  text-align: center;
+  color: #8e8ea0;
+  font-size: 12px;
+  margin-top: 12px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  background: #ececf1;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}

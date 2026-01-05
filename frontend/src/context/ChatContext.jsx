@@ -1,0 +1,197 @@
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { collection, addDoc, query, where, orderBy, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { AuthContext } from './AuthContext';
+import api from '../config/api';
+import toast from 'react-hot-toast';
+
+export const ChatContext = createContext();
+
+export const ChatProvider = ({ children }) => {
+  const { user } = useContext(AuthContext);
+  const [conversations, setConversations] = useState([]);
+  const [currentConversation, setCurrentConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      loadConversations();
+    } else {
+      setConversations([]);
+      setMessages([]);
+      setCurrentConversation(null);
+    }
+  }, [user]);
+
+  const loadConversations = async () => {
+    try {
+      const q = query(
+        collection(db, 'conversations'),
+        where('userId', '==', user.uid),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
+      const convos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      setConversations(convos);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    }
+  };
+
+  const loadMessages = async (conversationId) => {
+    try {
+      const q = query(
+        collection(db, 'messages'),
+        where('conversationId', '==', conversationId),
+        orderBy('createdAt', 'asc')
+      );
+      
+      const snapshot = await getDocs(q);
+      const msgs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      setMessages(msgs);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const createConversation = async (title = 'New Chat') => {
+    try {
+      const conversationRef = await addDoc(collection(db, 'conversations'), {
+        userId: user.uid,
+        title: title,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+
+      const newConvo = {
+        id: conversationRef.id,
+        userId: user.uid,
+        title: title,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      setConversations([newConvo, ...conversations]);
+      setCurrentConversation(newConvo);
+      setMessages([]);
+      
+      return newConvo;
+    } catch (error) {
+      toast.error('Error creating conversation');
+      throw error;
+    }
+  };
+
+  const sendMessage = async (content) => {
+    if (!currentConversation) {
+      const newConvo = await createConversation();
+      return sendMessageToConversation(newConvo.id, content);
+    }
+    
+    return sendMessageToConversation(currentConversation.id, content);
+  };
+
+  const sendMessageToConversation = async (conversationId, content) => {
+    setLoading(true);
+    
+    try {
+      // Add user message to Firestore
+      const userMessage = {
+        conversationId,
+        role: 'user',
+        content: content,
+        createdAt: new Date().toISOString()
+      };
+      
+      const userMessageRef = await addDoc(collection(db, 'messages'), userMessage);
+      const userMsg = { id: userMessageRef.id, ...userMessage };
+      setMessages(prev => [...prev, userMsg]);
+
+      // Call backend API for AI response
+      const response = await api.post('/api/chat', {
+        message: content,
+        conversationId: conversationId
+      });
+
+      // Add AI response to Firestore
+      const aiMessage = {
+        conversationId,
+        role: 'assistant',
+        content: response.data.message,
+        createdAt: new Date().toISOString()
+      };
+      
+      const aiMessageRef = await addDoc(collection(db, 'messages'), aiMessage);
+      const aiMsg = { id: aiMessageRef.id, ...aiMessage };
+      setMessages(prev => [...prev, aiMsg]);
+
+      return aiMsg;
+    } catch (error) {
+      toast.error('Error sending message');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteConversation = async (conversationId) => {
+    try {
+      // Delete conversation
+      await deleteDoc(doc(db, 'conversations', conversationId));
+      
+      // Delete all messages in conversation
+      const q = query(
+        collection(db, 'messages'),
+        where('conversationId', '==', conversationId)
+      );
+      const snapshot = await getDocs(q);
+      
+      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+
+      setConversations(prev => prev.filter(c => c.id !== conversationId));
+      
+      if (currentConversation?.id === conversationId) {
+        setCurrentConversation(null);
+        setMessages([]);
+      }
+      
+      toast.success('Conversation deleted');
+    } catch (error) {
+      toast.error('Error deleting conversation');
+      throw error;
+    }
+  };
+
+  const selectConversation = async (conversation) => {
+    setCurrentConversation(conversation);
+    await loadMessages(conversation.id);
+  };
+
+  const value = {
+    conversations,
+    currentConversation,
+    messages,
+    loading,
+    createConversation,
+    sendMessage,
+    deleteConversation,
+    selectConversation
+  };
+
+  return (
+    <ChatContext.Provider value={value}>
+      {children}
+    </ChatContext.Provider>
+  );
+};

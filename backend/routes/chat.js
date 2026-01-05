@@ -1,0 +1,97 @@
+import express from 'express';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { verifyToken } from '../middleware/auth.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const router = express.Router();
+
+// Initialize Gemini AI
+let genAI;
+let model;
+
+if (process.env.GEMINI_API_KEY) {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  // Using Gemma 3 27B model
+  model = genAI.getGenerativeModel({ model: "gemma-2-27b-it" });
+  console.log('✅ Gemini AI initialized with Gemma 3 27B model');
+} else {
+  console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
+}
+
+// AI response generator using Gemini
+const generateAIResponse = async (message, conversationHistory = []) => {
+  try {
+    if (!model) {
+      // Fallback demo response if API key is not configured
+      return `Demo Response: You asked "${message}". Please configure your GEMINI_API_KEY in the .env file to get real AI responses from Gemini (Gemma 3 27B).`;
+    }
+
+    // Build conversation history for context
+    const chat = model.startChat({
+      history: conversationHistory.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+      })),
+      generationConfig: {
+        maxOutputTokens: 2048,
+        temperature: 0.9,
+        topP: 0.95,
+        topK: 40,
+      },
+    });
+
+    const result = await chat.sendMessage(message);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    
+    // Fallback response on error
+    if (error.message?.includes('API key')) {
+      throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY in .env file.');
+    }
+    
+    throw new Error('Failed to generate AI response. Please try again.');
+  }
+};
+
+// Chat endpoint
+router.post('/chat', verifyToken, async (req, res) => {
+  try {
+    const { message, conversationId } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Generate AI response
+    const aiResponse = await generateAIResponse(message);
+
+    res.json({
+      message: aiResponse,
+      conversationId: conversationId,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user info
+router.get('/user', verifyToken, async (req, res) => {
+  try {
+    res.json({
+      uid: req.user.uid,
+      email: req.user.email,
+      name: req.user.name
+    });
+  } catch (error) {
+    console.error('User info error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+export default router;
