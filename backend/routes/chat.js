@@ -1,5 +1,5 @@
 import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 import { verifyToken } from '../middleware/auth.js';
 import dotenv from 'dotenv';
 
@@ -7,117 +7,67 @@ dotenv.config();
 
 const router = express.Router();
 
-// Initialize Gemini AI with automatic fallback
-let genAI;
-let model;
-let modelName = null;
+// Initialize Groq AI
+let groq;
+let modelName = 'llama-3.3-70b-versatile';
 
-// List of models to try (ordered by compatibility)
-const MODEL_FALLBACKS = [
-  "gemini-2.0-flash-exp",
-  "gemini-exp-1206",
-  "gemini-2.0-flash-thinking-exp-1219",
-  "gemini-1.5-flash-8b",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-latest",
-  "gemini-pro",
-  "gemini-1.5-pro-latest",
-  "gemini-1.5-pro",
-  "models/gemini-1.5-flash",
-  "models/gemini-pro"
-];
+if (process.env.GROQ_API_KEY) {
+  groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+  });
+  console.log(`✅ Groq AI initialized with ${modelName} model`);
+  console.log(`📝 API Key: ${process.env.GROQ_API_KEY.substring(0, 20)}...`);
+} else {
+  console.warn('⚠️  GROQ_API_KEY not found. Using demo responses.');
+}
 
-// Initialize model with automatic fallback
-const initializeModel = async () => {
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
-    return;
-  }
-
-  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  
-  // Try each model until one works
-  for (const testModel of MODEL_FALLBACKS) {
-    try {
-      const testInstance = genAI.getGenerativeModel({ model: testModel });
-      
-      // Test if the model works with a simple request
-      await testInstance.generateContent("Hi");
-      
-      // If successful, use this model
-      model = testInstance;
-      modelName = testModel;
-      console.log(`✅ Gemini AI initialized with ${modelName} model`);
-      console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
-      return;
-    } catch (error) {
-      console.log(`⚠️  Model ${testModel} not available, trying next...`);
-      continue;
-    }
-  }
-  
-  // If no model worked
-  console.error('❌ No Gemini models available with this API key');
-  console.error('Please generate a NEW API key at: https://aistudio.google.com/app/apikey');
-};
-
-// Initialize the model
-initializeModel().catch(err => {
-  console.error('Failed to initialize Gemini:', err.message);
-});
-
-// AI response generator using Gemini
+// AI response generator using Groq
 const generateAIResponse = async (message, conversationHistory = []) => {
   try {
-    if (!model) {
-      // Fallback demo response if model is not initialized
-      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ The Gemini AI model is not available. This could be because:\n1. Your API key doesn't have access to Gemini models\n2. The API key is invalid or expired\n3. There are temporary API issues\n\n✅ To fix this:\n1. Visit https://aistudio.google.com/app/apikey\n2. Generate a NEW API key\n3. Update GEMINI_API_KEY in backend/.env\n4. Restart the backend server\n\nThe chatbot will work once you configure a valid API key!`;
+    if (!groq) {
+      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ The Groq AI is not configured. To enable AI responses:\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n4. Restart the backend server\n\nGroq is FREE and much faster than other providers!`;
     }
 
-    // Build conversation history for context
-    const chat = model.startChat({
-      history: conversationHistory.map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
+    // Build messages array with conversation history
+    const messages = [
+      ...conversationHistory.map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content
       })),
-      generationConfig: {
-        maxOutputTokens: 2048,
-        temperature: 0.9,
-        topP: 0.95,
-        topK: 40,
-      },
+      {
+        role: 'user',
+        content: message
+      }
+    ];
+
+    // Call Groq API
+    const completion = await groq.chat.completions.create({
+      model: modelName,
+      messages: messages,
+      temperature: 0.9,
+      max_tokens: 2048,
+      top_p: 0.95,
     });
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    return response.text();
+    return completion.choices[0]?.message?.content || 'No response generated';
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    console.error('Groq API Error:', error);
     console.error('Error details:', {
       message: error.message,
       status: error.status,
-      statusText: error.statusText,
-      cause: error.cause
+      statusText: error.statusText
     });
     
-    // Provide more specific error messages with solutions
-    if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('invalid API key') || error.status === 400) {
-      throw new Error('❌ Invalid API key. Please:\n1. Visit https://aistudio.google.com/app/apikey\n2. Create a new API key\n3. Update GEMINI_API_KEY in backend/.env\n4. Restart the backend server');
+    // Provide specific error messages
+    if (error.message?.includes('API key') || error.status === 401) {
+      throw new Error('❌ Invalid Groq API key. Please:\n1. Visit https://console.groq.com/keys\n2. Create a new API key\n3. Update GROQ_API_KEY in backend/.env\n4. Restart the backend server');
     }
     
-    if (error.message?.includes('404') || error.message?.includes('not found') || error.message?.includes('models/') || error.status === 404) {
-      throw new Error('❌ Model not available. Try this:\n1. Visit https://aistudio.google.com/app/apikey\n2. Generate a NEW API key (old keys may have limited access)\n3. Replace the key in backend/.env\n4. Restart backend');
+    if (error.message?.includes('quota') || error.message?.includes('limit') || error.status === 429) {
+      throw new Error('⏳ API quota exceeded. Wait a moment or check your Groq account at https://console.groq.com/');
     }
     
-    if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429') || error.status === 429) {
-      throw new Error('⏳ API quota exceeded. Wait a few minutes or get a new key at https://aistudio.google.com/app/apikey');
-    }
-    
-    if (error.message?.includes('PERMISSION_DENIED') || error.status === 403) {
-      throw new Error('🔒 Permission denied. Generate a NEW API key at https://aistudio.google.com/app/apikey (existing keys may have restrictions)');
-    }
-    
-    // Generic error with full details
+    // Generic error
     throw new Error(`🤖 AI Error: ${error.message || 'Unknown error'}. Check backend logs for details.`);
   }
 };
