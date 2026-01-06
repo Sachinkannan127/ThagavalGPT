@@ -9,7 +9,9 @@ import Register from './components/Auth/Register';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import Chat from './components/Chat/Chat';
 import PrivateRoute from './components/PrivateRoute';
+import InstallPrompt from './components/InstallPrompt';
 import './index.css';
+import './mobile.css';
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
                 },
               }}
             />
+            <InstallPrompt />
             <Routes>
               <Route path="/" element={<Navigate to="/chat" />} />
               <Route path="/login" element={<Login />} />

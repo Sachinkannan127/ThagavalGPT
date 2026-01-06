@@ -1,9 +1,16 @@
 # ThagavalGPT
 
-A modern AI-powered chatbot application with React frontend and Node.js backend, featuring full Firebase authentication, Firestore database, and ultra-fast Groq AI integration.
+A modern AI-powered Progressive Web App (PWA) chatbot with React frontend and Node.js backend, featuring full Firebase authentication, Firestore database, and ultra-fast Groq AI integration.
 
 ## Features
 
+- 📱 **Progressive Web App (PWA)**
+  - Install on mobile and desktop
+  - Works offline after first load
+  - Native app-like experience
+  - Push notifications ready
+  - Responsive on all devices
+  
 - ⚡ **Groq AI Integration**
   - Lightning-fast responses with Llama 3.3 70B
   - FREE tier with generous limits
@@ -16,6 +23,8 @@ A modern AI-powered chatbot application with React frontend and Node.js backend,
 
 - 💬 **Modern Chat Interface**
   - ChatGPT/Gemini-inspired UI design
+  - Markdown rendering with syntax highlighting
+  - Copy, regenerate, and export messages
   - Real-time message streaming
   - Conversation history management
   - Sidebar with chat list
@@ -26,10 +35,11 @@ A modern AI-powered chatbot application with React frontend and Node.js backend,
   - Firebase Admin SDK for backend operations
 
 - 🎨 **Beautiful UI/UX**
-  - Responsive design
-  - Dark theme
+  - Fully responsive design (mobile & desktop)
+  - Modern blue gradient theme
   - Smooth animations
   - Toast notifications
+  - Touch-optimized for mobile
 
 ## Project Structure
 

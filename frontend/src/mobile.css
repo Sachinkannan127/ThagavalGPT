@@ -1,0 +1,316 @@
+/* Mobile-First Responsive Enhancements for PWA */
+
+/* Mobile devices (portrait) */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  /* Chat Layout Mobile */
+  .chat-container {
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100%;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .chat-window {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* Header adjustments for mobile */
+  .header {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .header-title {
+    font-size: 16px;
+  }
+
+  .header-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .header-btn span {
+    display: none;
+  }
+
+  /* Messages area mobile */
+  .messages-area {
+    padding: 16px 12px;
+    height: calc(100vh - 180px);
+    height: calc(100dvh - 180px);
+  }
+
+  .message {
+    max-width: 95%;
+    padding: 12px;
+  }
+
+  .message-time {
+    font-size: 10px;
+  }
+
+  /* Input area mobile */
+  .input-area {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .input-wrapper {
+    padding: 10px 12px;
+  }
+
+  .chat-input {
+    font-size: 15px;
+    max-height: 100px;
+  }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+  }
+
+  /* Welcome section mobile */
+  .welcome-section {
+    padding: 16px;
+  }
+
+  .welcome-title {
+    font-size: 24px;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+  }
+
+  .example-prompts {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .prompt-card {
+    padding: 12px;
+  }
+
+  /* Capability cards mobile */
+  .capabilities-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .capability-item {
+    padding: 12px;
+  }
+
+  /* Auth pages mobile */
+  .auth-container {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+
+  /* Sidebar mobile */
+  .sidebar-header {
+    padding: 16px 12px;
+  }
+
+  .new-chat-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .conversation-item {
+    padding: 10px 12px;
+  }
+
+  /* Install prompt mobile */
+  .install-prompt {
+    max-width: calc(100% - 20px);
+    margin: 0 10px;
+  }
+}
+
+/* Mobile landscape */
+@media (max-width: 768px) and (orientation: landscape) {
+  .messages-area {
+    height: calc(100vh - 140px);
+    height: calc(100dvh - 140px);
+  }
+
+  .chat-input {
+    max-height: 60px;
+  }
+
+  .welcome-section {
+    padding: 12px;
+  }
+
+  .welcome-title {
+    font-size: 20px;
+  }
+
+  .capabilities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .chat-window {
+    width: calc(100% - 240px);
+  }
+
+  .message {
+    max-width: 80%;
+  }
+
+  .example-prompts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capabilities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Touch-specific improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase tap targets for touch devices */
+  button, 
+  .prompt-card,
+  .conversation-item,
+  .action-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .prompt-card:hover,
+  .conversation-item:hover,
+  .action-btn:hover {
+    transform: none;
+  }
+
+  /* Add active states instead */
+  .prompt-card:active,
+  .conversation-item:active,
+  .action-btn:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  /* Improve scrolling on mobile */
+  .messages-area,
+  .conversations-list {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .chat-window,
+  .messages-area {
+    height: -webkit-fill-available;
+  }
+
+  .input-area {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  /* Fix for iOS Safari bottom bar */
+  @media (max-width: 768px) {
+    .messages-area {
+      height: calc(100vh - 180px - env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* PWA standalone mode */
+@media (display-mode: standalone) {
+  .install-prompt-overlay {
+    display: none;
+  }
+
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  input,
+  textarea {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  /* Add status bar space on iOS */
+  .header {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo-icon,
+  .message-avatar {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode enhancements for mobile */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0a6;
+    --bg-primary: #0a0e27;
+    --bg-secondary: #12162e;
+    --bg-tertiary: #1a1f3a;
+  }
+}

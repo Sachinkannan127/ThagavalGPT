@@ -21,6 +21,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pwa:check": "echo Checking PWA configuration... && curl http://localhost:3000/manifest.json"
   }
 }
