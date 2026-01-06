@@ -19,15 +19,15 @@
   --border-secondary: #dee2e6;
   
   --shadow-color: rgba(0, 0, 0, 0.05);
-  --shadow-color-hover: rgba(102, 126, 234, 0.15);
+  --shadow-color-hover: rgba(33, 150, 243, 0.15);
   
-  --message-user-bg: rgba(102, 126, 234, 0.05);
+  --message-user-bg: rgba(33, 150, 243, 0.08);
   --message-assistant-bg: #ffffff;
   --message-border: #f1f3f5;
   
   --scrollbar-track: #f1f3f5;
-  --scrollbar-thumb: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #5568d3 0%, #6a3f8f 100%);
+  --scrollbar-thumb: linear-gradient(180deg, #2196F3 0%, #1565C0 100%);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #1976D2 0%, #0D47A1 100%);
 }
 
 :root[data-theme="dark"] {
@@ -45,15 +45,15 @@
   --border-secondary: #495057;
   
   --shadow-color: rgba(0, 0, 0, 0.3);
-  --shadow-color-hover: rgba(102, 126, 234, 0.3);
+  --shadow-color-hover: rgba(33, 150, 243, 0.3);
   
-  --message-user-bg: rgba(102, 126, 234, 0.1);
+  --message-user-bg: rgba(33, 150, 243, 0.12);
   --message-assistant-bg: #25262b;
   --message-border: #373a40;
   
   --scrollbar-track: #2c2e33;
-  --scrollbar-thumb: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #5568d3 0%, #6a3f8f 100%);
+  --scrollbar-thumb: linear-gradient(180deg, #2196F3 0%, #1565C0 100%);
+  --scrollbar-thumb-hover: linear-gradient(180deg, #1976D2 0%, #0D47A1 100%);
 }
 
 body {

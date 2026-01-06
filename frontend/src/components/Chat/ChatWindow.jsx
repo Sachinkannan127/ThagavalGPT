@@ -1,13 +1,17 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiMenu, FiTrash2, FiZap, FiCode, FiBook, FiCoffee } from 'react-icons/fi';
 import { ChatContext } from '../../context/ChatContext';
+import { ThemeContext } from '../../context/ThemeContext';
 import ChatMessage from './ChatMessage';
 import Logo from '../Logo';
+import toast from 'react-hot-toast';
 import './ChatWindow.css';
 
-const ChatWindow = () => {
+const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
   const [input, setInput] = useState('');
-  const { messages, loading, sendMessage, currentConversation } = useContext(ChatContext);
+  const [charCount, setCharCount] = useState(0);
+  const { messages, loading, sendMessage, currentConversation, createConversation } = useContext(ChatContext);
+  const { isDark } = useContext(ThemeContext);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -18,12 +22,27 @@ const ChatWindow = () => {
     scrollToBottom();
   }, [messages]);
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInput(value);
+    setCharCount(value.length);
+  };
+
+  const handleClearChat = () => {
+    if (messages.length === 0) return;
+    if (window.confirm('Clear all messages in this chat?')) {
+      createConversation();
+      toast.success('Chat cleared');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
     const message = input.trim();
     setInput('');
+    setCharCount(0);
     
     try {
       await sendMessage(message);
@@ -41,25 +60,62 @@ const ChatWindow = () => {
 
   return (
     <div className="chat-window">
+      <div className="chat-header">
+        <button className="menu-btn" onClick={onToggleSidebar} title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}>
+          <FiMenu size={24} />
+        </button>
+        <div className="header-logo">
+          <Logo size="small" showText={false} />
+          <span className="header-title">ThagavalGPT</span>
+        </div>
+        {messages.length > 0 && (
+          <button className="clear-chat-btn" onClick={handleClearChat} title="Clear chat">
+            <FiTrash2 size={18} />
+            <span>Clear</span>
+          </button>
+        )}
+      </div>
       {messages.length === 0 && !currentConversation ? (
         <div className="welcome-screen">
-          <div style={{ marginBottom: '30px' }}>
+          <div className="welcome-logo">
             <Logo size="large" showText={false} />
           </div>
-          <h1>ThagavalGPT</h1>
-          <p>How can I help you today?</p>
+          <h1>Welcome to ThagavalGPT</h1>
+          <p className="welcome-subtitle">Your AI-powered assistant for any task</p>
+          <div className="capabilities">
+            <div className="capability-item">
+              <FiZap size={24} />
+              <span>Lightning Fast</span>
+            </div>
+            <div className="capability-item">
+              <FiCode size={24} />
+              <span>Code Helper</span>
+            </div>
+            <div className="capability-item">
+              <FiBook size={24} />
+              <span>Knowledge Base</span>
+            </div>
+            <div className="capability-item">
+              <FiCoffee size={24} />
+              <span>Creative Ideas</span>
+            </div>
+          </div>
           <div className="example-prompts">
             <button onClick={() => setInput("Explain quantum computing in simple terms")}>
-              Explain quantum computing
+              <span className="prompt-icon">💡</span>
+              <span>Explain quantum computing</span>
             </button>
-            <button onClick={() => setInput("Write a creative story about space exploration")}>
-              Write a creative story
+            <button onClick={() => setInput("Write a Python function to sort a list")}>
+              <span className="prompt-icon">💻</span>
+              <span>Write Python code</span>
             </button>
-            <button onClick={() => setInput("Help me plan a healthy meal")}>
-              Plan a healthy meal
+            <button onClick={() => setInput("Create a weekly workout plan for beginners")}>
+              <span className="prompt-icon">🏋️</span>
+              <span>Fitness plan</span>
             </button>
-            <button onClick={() => setInput("Teach me about machine learning")}>
-              Teach me ML basics
+            <button onClick={() => setInput("Help me write a professional email")}>
+              <span className="prompt-icon">✉️</span>
+              <span>Professional email</span>
             </button>
           </div>
         </div>
@@ -92,19 +148,25 @@ const ChatWindow = () => {
         <form onSubmit={handleSubmit} className="input-form">
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Send a message..."
+            placeholder="Type your message... (Shift + Enter for new line)"
             rows={1}
             disabled={loading}
+            maxLength={4000}
           />
+          {charCount > 0 && (
+            <span className="char-counter">{charCount}/4000</span>
+          )}
           <button type="submit" disabled={!input.trim() || loading}>
             <FiSend size={20} />
           </button>
         </form>
-        <p className="input-disclaimer">
-          ThagavalGPT can make mistakes. Consider checking important information.
-        </p>
+        <div className="input-footer">
+          <p className="input-disclaimer">
+            ThagavalGPT can make mistakes. Consider checking important information.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
-import { FiPlus, FiTrash2, FiMessageSquare, FiSun, FiMoon } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiMessageSquare, FiSun, FiMoon, FiX } from 'react-icons/fi';
 import { ChatContext } from '../../context/ChatContext';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import Logo from '../Logo';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { conversations, currentConversation, createConversation, selectConversation, deleteConversation } = useContext(ChatContext);
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -16,11 +16,16 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar">
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
+      <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <Logo size="small" showText={true} />
         </div>
+        <button className="close-sidebar-btn" onClick={onClose}>
+          <FiX size={20} />
+        </button>
         <button className="new-chat-btn" onClick={handleNewChat}>
           <FiPlus size={20} />
           <span>New Chat</span>
@@ -68,6 +73,7 @@ const Sidebar = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

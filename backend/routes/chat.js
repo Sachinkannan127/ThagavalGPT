@@ -15,17 +15,8 @@ let modelName = null;
 if (process.env.GEMINI_API_KEY) {
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   
-  // List of models to try (from most compatible to newest)
-  const modelOptions = [
-    "gemini-pro",           // Most widely available, free tier
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro-latest",
-    "gemini-1.5-pro"
-  ];
-  
-  // Use the most basic model
-  modelName = modelOptions[0];
+  // Using Gemma 3 27B model for answer generation
+  modelName = "gemma-3-27b";
   model = genAI.getGenerativeModel({ model: modelName });
   console.log(`✅ Gemini AI initialized with ${modelName} model`);
   console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
