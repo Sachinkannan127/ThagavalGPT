@@ -2,6 +2,21 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { FiUser, FiCpu, FiCopy, FiCheck, FiRefreshCw } from 'react-icons/fi';
 import { marked } from 'marked';
 import toast from 'react-hot-toast';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-cpp';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-tsx';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-sql';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-json';
 import './ChatMessage.css';
 
 // Configure marked for better rendering
@@ -15,6 +30,13 @@ marked.setOptions({
 const ChatMessage = ({ message, onRegenerate }) => {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
+
+  // Apply syntax highlighting after content updates
+  useEffect(() => {
+    if (!isUser) {
+      Prism.highlightAll();
+    }
+  }, [message.content, isUser]);
 
   // Render markdown content
   const renderedContent = useMemo(() => {
