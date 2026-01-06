@@ -28,8 +28,16 @@ const generateAIResponse = async (message, conversationHistory = []) => {
       return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ The Groq AI is not configured. To enable AI responses:\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n4. Restart the backend server\n\nGroq is FREE and much faster than other providers!`;
     }
 
-    // Build messages array with conversation history
+    // Build messages array with system prompt and conversation history
     const messages = [
+      {
+        role: 'system',
+        content: `You are a helpful AI assistant. When providing code examples:
+- Always wrap code in markdown code blocks with the language specified (e.g., \`\`\`python, \`\`\`javascript, etc.)
+- Provide clear explanations before and after code blocks
+- Format your responses with proper markdown syntax
+- Be concise but thorough in your explanations`
+      },
       ...conversationHistory.map(msg => ({
         role: msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.content
@@ -44,12 +52,20 @@ const generateAIResponse = async (message, conversationHistory = []) => {
     const completion = await groq.chat.completions.create({
       model: modelName,
       messages: messages,
-      temperature: 0.9,
-      max_tokens: 2048,
+      temperature: 0.7,
+      max_tokens: 4096,
       top_p: 0.95,
     });
 
-    return completion.choices[0]?.message?.content || 'No response generated';
+    const responseContent = completion.choices[0]?.message?.content;
+    
+    if (!responseContent) {
+      return 'No response generated';
+    }
+    
+    console.log('📝 AI Response preview:', responseContent.substring(0, 100) + '...');
+    
+    return responseContent;
   } catch (error) {
     console.error('Groq API Error:', error);
     console.error('Error details:', {
@@ -93,7 +109,11 @@ router.post('/chat', verifyToken, async (req, res) => {
     // Generate AI response
     console.log('🤖 Generating AI response...');
     const aiResponse = await generateAIResponse(message);
-    console.log('✅ AI response generated successfully');
+    console.log('✅ AI response generated:', {
+      length: aiResponse.length,
+      hasCodeBlock: aiResponse.includes('```'),
+      preview: aiResponse.substring(0, 150)
+    });
 
     res.json({
       message: aiResponse,

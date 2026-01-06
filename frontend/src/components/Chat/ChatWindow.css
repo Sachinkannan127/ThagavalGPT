@@ -52,10 +52,6 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .header-actions {
@@ -135,10 +131,7 @@
 .welcome-screen h1 {
   font-size: 52px;
   font-weight: 700;
-  background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin-bottom: 12px;
   margin-top: 0;
 }
@@ -176,12 +169,12 @@
 
 .capability-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.15);
-  border-color: #2196F3;
+  box-shadow: 0 8px 20px var(--shadow-color-hover);
+  border-color: var(--accent-primary);
 }
 
 .capability-item svg {
-  color: #2196F3;
+  color: var(--accent-primary);
 }
 
 .example-prompts {
@@ -211,9 +204,9 @@
 
 .example-prompts button:hover {
   background: var(--bg-tertiary);
-  border-color: #2196F3;
+  border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.12);
+  box-shadow: 0 6px 16px var(--shadow-color-hover);
 }
 
 .prompt-icon {
@@ -265,8 +258,8 @@
 }
 
 .input-form:focus-within {
-  border-color: #2196F3;
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.15);
+  border-color: var(--border-secondary);
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .input-form textarea {
@@ -297,24 +290,22 @@
 }
 
 .input-form button {
-  background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
+  background: var(--accent-primary);
   border: none;
-  border-radius: 50%;
+  border-radius: 6px;
   color: white;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .input-form button:hover:not(:disabled) {
-  transform: scale(1.1) rotate(15deg);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  background: var(--accent-hover);
 }
 
 .input-form button:disabled {

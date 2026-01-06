@@ -6,54 +6,62 @@
 
 :root[data-theme="light"] {
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-gradient-start: #f5f7fa;
-  --bg-gradient-end: #c3cfe2;
-  --bg-tertiary: #e9ecef;
+  --bg-secondary: #f7f7f8;
+  --bg-gradient-start: #ffffff;
+  --bg-gradient-end: #f7f7f8;
+  --bg-tertiary: #ececf1;
   
-  --text-primary: #2c3e50;
-  --text-secondary: #6c757d;
-  --text-tertiary: #adb5bd;
+  --text-primary: #343541;
+  --text-secondary: #6e6e80;
+  --text-tertiary: #9a9aaf;
   
-  --border-primary: #e9ecef;
-  --border-secondary: #dee2e6;
+  --border-primary: #e5e5e5;
+  --border-secondary: #d1d5db;
   
   --shadow-color: rgba(0, 0, 0, 0.05);
-  --shadow-color-hover: rgba(33, 150, 243, 0.15);
+  --shadow-color-hover: rgba(16, 163, 127, 0.15);
   
-  --message-user-bg: rgba(33, 150, 243, 0.08);
+  --message-user-bg: #f7f7f8;
   --message-assistant-bg: #ffffff;
-  --message-border: #f1f3f5;
+  --message-border: #e5e5e5;
   
-  --scrollbar-track: #f1f3f5;
-  --scrollbar-thumb: linear-gradient(180deg, #2196F3 0%, #1565C0 100%);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #1976D2 0%, #0D47A1 100%);
+  --accent-primary: #10a37f;
+  --accent-hover: #0d8a6b;
+  --accent-light: rgba(16, 163, 127, 0.1);
+  
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #c5c5d2;
+  --scrollbar-thumb-hover: #9a9aaf;
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #1a1b1e;
-  --bg-secondary: #25262b;
-  --bg-gradient-start: #1a1b1e;
-  --bg-gradient-end: #2c2e33;
-  --bg-tertiary: #2c2e33;
+  --bg-primary: #343541;
+  --bg-secondary: #444654;
+  --bg-gradient-start: #343541;
+  --bg-gradient-end: #202123;
+  --bg-tertiary: #40414f;
   
-  --text-primary: #e9ecef;
-  --text-secondary: #ced4da;
-  --text-tertiary: #868e96;
+  --text-primary: #ececf1;
+  --text-secondary: #c5c5d2;
+  --text-tertiary: #8e8ea0;
   
-  --border-primary: #373a40;
-  --border-secondary: #495057;
+  --border-primary: #565869;
+  --border-secondary: #6e6e80;
   
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --shadow-color-hover: rgba(33, 150, 243, 0.3);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-color-hover: rgba(16, 163, 127, 0.3);
   
-  --message-user-bg: rgba(33, 150, 243, 0.12);
-  --message-assistant-bg: #25262b;
-  --message-border: #373a40;
+  --message-user-bg: #343541;
+  --message-assistant-bg: #444654;
+  --message-border: #565869;
   
-  --scrollbar-track: #2c2e33;
-  --scrollbar-thumb: linear-gradient(180deg, #2196F3 0%, #1565C0 100%);
-  --scrollbar-thumb-hover: linear-gradient(180deg, #1976D2 0%, #0D47A1 100%);
+  --accent-primary: #10a37f;
+  --accent-hover: #1a9f7f;
+  --accent-light: rgba(16, 163, 127, 0.15);
+  
+  --scrollbar-track: #40414f;
+  --scrollbar-thumb: #565869;
+  --scrollbar-thumb-hover: #6e6e80;
 }
 
 body {
@@ -62,7 +70,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  background: var(--bg-primary);
   color: var(--text-primary);
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -99,4 +107,18 @@ code {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
+}
+
+/* Button styles */
+button {
+  font-family: inherit;
+}
+
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
 }

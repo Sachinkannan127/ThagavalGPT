@@ -1,15 +1,17 @@
-import React, { useContext } from 'react';
-import { FiPlus, FiTrash2, FiMessageSquare, FiSun, FiMoon, FiX } from 'react-icons/fi';
+import React, { useContext, useState } from 'react';
+import { FiPlus, FiTrash2, FiMessageSquare, FiSun, FiMoon, FiX, FiSettings } from 'react-icons/fi';
 import { ChatContext } from '../../context/ChatContext';
 import { AuthContext } from '../../context/AuthContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import Logo from '../Logo';
+import SettingsModal from '../SettingsModal';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { conversations, currentConversation, createConversation, selectConversation, deleteConversation } = useContext(ChatContext);
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleNewChat = () => {
     createConversation();
@@ -59,6 +61,10 @@ const Sidebar = ({ isOpen, onClose }) => {
           {theme === 'light' ? <FiMoon size={18} /> : <FiSun size={18} />}
           <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
         </button>
+        <button className="settings-btn" onClick={() => setShowSettings(true)}>
+          <FiSettings size={18} />
+          <span>Settings</span>
+        </button>
         <div className="user-info">
           <div className="user-avatar">
             {user?.displayName?.charAt(0).toUpperCase() || 'U'}
@@ -73,6 +79,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         </button>
       </div>
     </div>
+    
+    <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </>
   );
 };

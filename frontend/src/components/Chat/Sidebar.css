@@ -184,6 +184,27 @@
 .theme-toggle-btn:hover {
   background: var(--bg-tertiary);
 }
+
+.settings-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: var(--bg-tertiary);
+}
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--shadow-color-hover);
 }
