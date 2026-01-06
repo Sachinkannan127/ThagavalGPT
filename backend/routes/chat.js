@@ -15,8 +15,8 @@ let modelName = null;
 if (process.env.GEMINI_API_KEY) {
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   
-  // Using Gemini 1.5 Flash model for answer generation
-  modelName = "gemini-1.5-flash";
+  // Using Gemini Pro - most compatible model for free tier API keys
+  modelName = "gemini-pro";
   model = genAI.getGenerativeModel({ model: modelName });
   console.log(`✅ Gemini AI initialized with ${modelName} model`);
   console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
