@@ -7,29 +7,71 @@ dotenv.config();
 
 const router = express.Router();
 
-// Initialize Gemini AI
+// Initialize Gemini AI with automatic fallback
 let genAI;
 let model;
 let modelName = null;
 
-if (process.env.GEMINI_API_KEY) {
+// List of models to try (ordered by compatibility)
+const MODEL_FALLBACKS = [
+  "gemini-2.0-flash-exp",
+  "gemini-exp-1206",
+  "gemini-2.0-flash-thinking-exp-1219",
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-latest",
+  "gemini-pro",
+  "gemini-1.5-pro-latest",
+  "gemini-1.5-pro",
+  "models/gemini-1.5-flash",
+  "models/gemini-pro"
+];
+
+// Initialize model with automatic fallback
+const initializeModel = async () => {
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
+    return;
+  }
+
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   
-  // Using Gemini Pro - most compatible model for free tier API keys
-  modelName = "gemini-pro";
-  model = genAI.getGenerativeModel({ model: modelName });
-  console.log(`✅ Gemini AI initialized with ${modelName} model`);
-  console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
-} else {
-  console.warn('⚠️  GEMINI_API_KEY not found. Using demo responses.');
-}
+  // Try each model until one works
+  for (const testModel of MODEL_FALLBACKS) {
+    try {
+      const testInstance = genAI.getGenerativeModel({ model: testModel });
+      
+      // Test if the model works with a simple request
+      await testInstance.generateContent("Hi");
+      
+      // If successful, use this model
+      model = testInstance;
+      modelName = testModel;
+      console.log(`✅ Gemini AI initialized with ${modelName} model`);
+      console.log(`📝 API Key: ${process.env.GEMINI_API_KEY.substring(0, 20)}...`);
+      return;
+    } catch (error) {
+      console.log(`⚠️  Model ${testModel} not available, trying next...`);
+      continue;
+    }
+  }
+  
+  // If no model worked
+  console.error('❌ No Gemini models available with this API key');
+  console.error('Please generate a NEW API key at: https://aistudio.google.com/app/apikey');
+};
+
+// Initialize the model
+initializeModel().catch(err => {
+  console.error('Failed to initialize Gemini:', err.message);
+});
 
 // AI response generator using Gemini
 const generateAIResponse = async (message, conversationHistory = []) => {
   try {
     if (!model) {
-      // Fallback demo response if API key is not configured
-      return `Demo Response: You asked "${message}". Please configure your GEMINI_API_KEY in the .env file to get real AI responses from Gemini.`;
+      // Fallback demo response if model is not initialized
+      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ The Gemini AI model is not available. This could be because:\n1. Your API key doesn't have access to Gemini models\n2. The API key is invalid or expired\n3. There are temporary API issues\n\n✅ To fix this:\n1. Visit https://aistudio.google.com/app/apikey\n2. Generate a NEW API key\n3. Update GEMINI_API_KEY in backend/.env\n4. Restart the backend server\n\nThe chatbot will work once you configure a valid API key!`;
     }
 
     // Build conversation history for context
