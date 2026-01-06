@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
-import { FiUser, FiCpu, FiCopy, FiCheck } from 'react-icons/fi';
+import React, { useState, useMemo } from 'react';
+import { FiUser, FiCpu, FiCopy, FiCheck, FiRefreshCw } from 'react-icons/fi';
+import { marked } from 'marked';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import toast from 'react-hot-toast';
 import './ChatMessage.css';
 
-const ChatMessage = ({ message }) => {
+// Configure marked for better rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+const ChatMessage = ({ message, onRegenerate }) => {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
+
+  // Render markdown content with syntax highlighting
+  const renderedContent = useMemo(() => {
+    if (isUser) return message.content;
+    
+    const renderer = new marked.Renderer();
+    
+    // Custom code block renderer
+    renderer.code = (code, language) => {
+      return `<pre class="code-block"><code class="language-${language || 'text'}" data-lang="${language || 'text'}">${code}</code></pre>`;
+    };
+    
+    // Custom inline code renderer
+    renderer.codespan = (code) => {
+      return `<code class="inline-code">${code}</code>`;
+    };
+    
+    marked.use({ renderer });
+    return marked.parse(message.content);
+  }, [message.content, isUser]);
 
   const handleCopy = async () => {
     try {
@@ -16,6 +45,20 @@ const ChatMessage = ({ message }) => {
     } catch (err) {
       toast.error('Failed to copy');
     }
+  };
+
+  const handleRegenerate = () => {
+    if (onRegenerate) {
+      onRegenerate(message);
+      toast('Regenerating response...');
+    }
+  };
+
+  // Format timestamp
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -29,12 +72,27 @@ const ChatMessage = ({ message }) => {
           )}
         </div>
         <div className="message-body">
-          <div className="message-text">
-            {message.content}
+          {isUser ? (
+            <div className="message-text">{message.content}</div>
+          ) : (
+            <div 
+              className="message-text markdown-content"
+              dangerouslySetInnerHTML={{ __html: renderedContent }}
+            />
+          )}
+          <div className="message-actions">
+            {message.timestamp && (
+              <span className="message-time">{formatTime(message.timestamp)}</span>
+            )}
+            <button className="action-btn copy-btn" onClick={handleCopy} title="Copy message">
+              {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+            </button>
+            {!isUser && onRegenerate && (
+              <button className="action-btn regenerate-btn" onClick={handleRegenerate} title="Regenerate response">
+                <FiRefreshCw size={16} />
+              </button>
+            )}
           </div>
-          <button className="copy-btn" onClick={handleCopy} title="Copy message">
-            {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
-          </button>
         </div>
       </div>
     </div>

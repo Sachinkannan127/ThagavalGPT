@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { FiSend, FiMenu, FiTrash2, FiZap, FiCode, FiBook, FiCoffee } from 'react-icons/fi';
+import { FiSend, FiMenu, FiTrash2, FiZap, FiCode, FiBook, FiCoffee, FiDownload } from 'react-icons/fi';
 import { ChatContext } from '../../context/ChatContext';
 import { ThemeContext } from '../../context/ThemeContext';
 import ChatMessage from './ChatMessage';
@@ -36,6 +36,42 @@ const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
     }
   };
 
+  const handleExportChat = () => {
+    if (messages.length === 0) {
+      toast.error('No messages to export');
+      return;
+    }
+
+    const chatData = {
+      conversation: currentConversation?.title || 'Chat Export',
+      date: new Date().toISOString(),
+      messages: messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Chat exported successfully');
+  };
+
+  const handleRegenerate = async (message) => {
+    const messageIndex = messages.findIndex(m => m.id === message.id);
+    if (messageIndex > 0) {
+      const previousUserMessage = messages[messageIndex - 1];
+      if (previousUserMessage.role === 'user') {
+        await sendMessage(previousUserMessage.content);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
@@ -69,10 +105,16 @@ const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
           <span className="header-title">ThagavalGPT</span>
         </div>
         {messages.length > 0 && (
-          <button className="clear-chat-btn" onClick={handleClearChat} title="Clear chat">
-            <FiTrash2 size={18} />
-            <span>Clear</span>
-          </button>
+          <div className="header-actions">
+            <button className="header-btn export-btn" onClick={handleExportChat} title="Export chat">
+              <FiDownload size={18} />
+              <span>Export</span>
+            </button>
+            <button className="header-btn clear-chat-btn" onClick={handleClearChat} title="Clear chat">
+              <FiTrash2 size={18} />
+              <span>Clear</span>
+            </button>
+          </div>
         )}
       </div>
       {messages.length === 0 && !currentConversation ? (
@@ -122,7 +164,11 @@ const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
       ) : (
         <div className="messages-container">
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage 
+              key={message.id} 
+              message={message}
+              onRegenerate={message.role === 'assistant' ? handleRegenerate : null}
+            />
           ))}
           {loading && (
             <div className="message-wrapper assistant-message">

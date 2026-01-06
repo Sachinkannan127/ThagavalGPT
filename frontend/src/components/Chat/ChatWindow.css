@@ -58,7 +58,12 @@
   background-clip: text;
 }
 
-.clear-chat-btn {
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header-btn {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -72,8 +77,17 @@
   transition: all 0.2s ease;
 }
 
-.clear-chat-btn:hover {
+.header-btn:hover {
   background: var(--bg-secondary);
+  transform: translateY(-1px);
+}
+
+.export-btn:hover {
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.clear-chat-btn:hover {
   border-color: #ef4444;
   color: #ef4444;
 }
