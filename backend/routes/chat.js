@@ -71,18 +71,22 @@ const generateOpenRouterResponse = async (message, conversationHistory = []) => 
       return generateGroqResponse(message, conversationHistory);
     }
 
+    // Limit conversation history to last 4 messages for speed
+    const recentHistory = conversationHistory.slice(-4);
+
     // Build messages array
     const messages = [
       {
         role: 'system',
-        content: `You are a helpful AI assistant specialized in coding and technical explanations. When providing code examples:
-- Always wrap code in markdown code blocks with the language specified (e.g., \`\`\`python, \`\`\`javascript, etc.)
-- Provide clear explanations before and after code blocks
-- Include comments in code for better understanding
-- Be concise but thorough in your explanations
-- For complex code, break it down step by step`
+        content: `You are a helpful AI assistant. Be BRIEF and CONCISE:
+1. Short definitions (2-3 sentences max)
+2. For code: minimal working example only
+3. Use \`\`\`language for code blocks
+4. Bullet points for lists
+5. Skip unnecessary explanations
+6. Get to the point immediately`
       },
-      ...conversationHistory.map(msg => ({
+      ...recentHistory.map(msg => ({
         role: msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.content
       })),
@@ -96,8 +100,8 @@ const generateOpenRouterResponse = async (message, conversationHistory = []) => 
     const response = await generateText({
       model: openrouter(openrouterModel),
       messages: messages,
-      temperature: 0.7,
-      maxTokens: 4096,
+      temperature: 0.8,
+      maxTokens: 1024,
     });
 
     const responseContent = response.text;
@@ -123,17 +127,21 @@ const generateGroqResponse = async (message, conversationHistory = []) => {
       return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ AI is not configured. To enable AI responses:\n\n**Option 1: OpenRouter (FREE models available)**\n1. Visit https://openrouter.ai/keys\n2. Create a FREE API key\n3. Add OPENROUTER_API_KEY to backend/.env\n\n**Option 2: Groq (Free & Fast)**\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n\n4. Restart the backend server`;
     }
 
+    // Limit conversation history to last 4 messages for speed
+    const recentHistory = conversationHistory.slice(-4);
+
     // Build messages array with system prompt and conversation history
     const messages = [
       {
         role: 'system',
-        content: `You are a helpful AI assistant. When providing code examples:
-- Always wrap code in markdown code blocks with the language specified (e.g., \`\`\`python, \`\`\`javascript, etc.)
-- Provide clear explanations before and after code blocks
-- Format your responses with proper markdown syntax
-- Be concise but thorough in your explanations`
+        content: `You are a helpful AI assistant. Be BRIEF:
+1. Keep answers short (2-4 sentences)
+2. For code: minimal example in \`\`\`language blocks
+3. Use bullet points
+4. No long explanations
+5. Direct and concise only`
       },
-      ...conversationHistory.map(msg => ({
+      ...recentHistory.map(msg => ({
         role: msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.content
       })),
@@ -147,9 +155,10 @@ const generateGroqResponse = async (message, conversationHistory = []) => {
     const completion = await groq.chat.completions.create({
       model: modelName,
       messages: messages,
-      temperature: 0.7,
-      max_tokens: 4096,
+      temperature: 0.8,
+      max_tokens: 1024,
       top_p: 0.95,
+      frequency_penalty: 0.2,
     });
 
     const responseContent = completion.choices[0]?.message?.content;

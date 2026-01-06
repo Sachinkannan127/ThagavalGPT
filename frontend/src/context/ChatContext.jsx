@@ -9,10 +9,34 @@ export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
-  const [conversations, setConversations] = useState([]);
-  const [currentConversation, setCurrentConversation] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState(() => {
+    const saved = localStorage.getItem('conversations');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [currentConversation, setCurrentConversation] = useState(() => {
+    const saved = localStorage.getItem('currentConversation');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('messages');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [loading, setLoading] = useState(false);
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
+
+  useEffect(() => {
+    if (currentConversation) {
+      localStorage.setItem('currentConversation', JSON.stringify(currentConversation));
+    }
+  }, [currentConversation]);
+
+  useEffect(() => {
+    localStorage.setItem('messages', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     if (user) {
