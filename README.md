@@ -1,9 +1,14 @@
 # ThagavalGPT
 
-A modern ChatGPT/Gemini-style chatbot application with React frontend and Node.js backend, featuring full Firebase authentication and Firestore database integration.
+A modern AI-powered chatbot application with React frontend and Node.js backend, featuring full Firebase authentication, Firestore database, and ultra-fast Groq AI integration.
 
 ## Features
 
+- ⚡ **Groq AI Integration**
+  - Lightning-fast responses with Llama 3.3 70B
+  - FREE tier with generous limits
+  - Multiple model options available
+  
 - 🔐 **Full Firebase Authentication**
   - Email/Password login and registration
   - Password reset functionality
@@ -180,14 +185,20 @@ service cloud.firestore {
    - Click on conversations in the sidebar to switch between them
    - Click the trash icon to delete a conversation
 
-## AI Integration - Google Gemini ✨
+## AI Integration - Groq (Llama 3.3) ⚡
 
-ThagavalGPT is now **pre-configured** with Google's Gemini AI using the **Gemini 1.5 Flash** model!
+ThagavalGPT now uses **Groq** for ultra-fast AI responses with the powerful **Llama 3.3 70B** model!
+
+### Why Groq?
+- ✅ **FREE** - Generous free tier
+- ⚡ **10x FASTER** - Lightning-fast responses
+- 🚀 **POWERFUL** - Llama 3.3 70B model
+- 🌍 **RELIABLE** - No quota issues
 
 ### Quick Setup (3 Steps)
 
-1. **Get API Key**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. **Add to .env**: `GEMINI_API_KEY=your_api_key_here` in `backend/.env`
+1. **Get FREE API Key**: Visit [Groq Console](https://console.groq.com/keys)
+2. **Add to .env**: `GROQ_API_KEY=your_api_key_here` in `backend/.env`
 3. **Install & Run**: 
    ```bash
    cd backend
@@ -195,9 +206,9 @@ ThagavalGPT is now **pre-configured** with Google's Gemini AI using the **Gemini
    npm run dev
    ```
 
-**That's it!** Your chatbot will now use Gemini AI for responses.
+**That's it!** Your chatbot will now use Groq AI for blazing-fast responses.
 
-See [GEMINI_SETUP.md](GEMINI_SETUP.md) for detailed configuration options.
+See [GROQ_SETUP.md](GROQ_SETUP.md) for detailed configuration options and available models.
 
 ### Features
 - ✅ Gemini 1.5 Flash model (Fast & efficient)
