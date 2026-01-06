@@ -9,6 +9,45 @@ export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
+  
+  // Load from localStorage with content validation
+  const loadMessagesFromStorage = () => {
+    const saved = localStorage.getItem('messages');
+    if (!saved) return [];
+    
+    try {
+      const messages = JSON.parse(saved);
+      // Fix any object content in old messages
+      return messages.map(msg => {
+        let content = msg.content;
+        
+        if (typeof content === 'object' && content !== null) {
+          content = content.text || content.content || JSON.stringify(content);
+        }
+        
+        content = String(content);
+        
+        // Check for [object Object]
+        if (content === '[object Object]' || content.includes('[object Object]')) {
+          console.warn('⚠️ localStorage message has [object Object], clearing...');
+          if (typeof msg.content === 'object') {
+            content = JSON.stringify(msg.content, null, 2);
+          } else {
+            content = 'Message content unavailable';
+          }
+        }
+        
+        return {
+          ...msg,
+          content: content
+        };
+      });
+    } catch (e) {
+      console.error('Error loading messages:', e);
+      return [];
+    }
+  };
+  
   const [conversations, setConversations] = useState(() => {
     const saved = localStorage.getItem('conversations');
     return saved ? JSON.parse(saved) : [];
@@ -17,11 +56,18 @@ export const ChatProvider = ({ children }) => {
     const saved = localStorage.getItem('currentConversation');
     return saved ? JSON.parse(saved) : null;
   });
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('messages');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [messages, setMessages] = useState(loadMessagesFromStorage);
   const [loading, setLoading] = useState(false);
+  const [responseLength, setResponseLength] = useState(() => {
+    const saved = localStorage.getItem('responseLength');
+    return saved || 'auto'; // Default to 'auto' if not set
+  });
+
+  // Save responseLength to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('responseLength', responseLength);
+    console.log('📏 Response length set to:', responseLength);
+  }, [responseLength]);
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -77,10 +123,36 @@ export const ChatProvider = ({ children }) => {
       );
       
       const snapshot = await getDocs(q);
-      const msgs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const msgs = snapshot.docs.map(doc => {
+        const data = doc.data();
+        let content = data.content;
+        
+        // Handle object content
+        if (typeof content === 'object' && content !== null) {
+          console.warn('⚠️ Firestore message has object content:', content);
+          content = content.text || content.content || content.message || JSON.stringify(content);
+        }
+        
+        // Convert to string
+        content = String(content || 'No content');
+        
+        // Check if conversion resulted in [object Object]
+        if (content === '[object Object]' || content.includes('[object Object]')) {
+          console.error('❌ Detected [object Object] from Firestore, message ID:', doc.id);
+          // Try JSON stringify as last resort
+          if (typeof data.content === 'object') {
+            content = JSON.stringify(data.content, null, 2);
+          } else {
+            content = 'Message could not be loaded';
+          }
+        }
+        
+        return {
+          id: doc.id,
+          ...data,
+          content: content
+        };
+      });
       
       setMessages(msgs);
     } catch (error) {
@@ -130,11 +202,14 @@ export const ChatProvider = ({ children }) => {
     let userMsg = null;
     
     try {
+      // Ensure content is a string
+      const messageContent = String(content);
+      
       // Add user message to Firestore
       const userMessage = {
         conversationId,
         role: 'user',
-        content: content,
+        content: messageContent,
         createdAt: new Date().toISOString()
       };
       
@@ -146,8 +221,9 @@ export const ChatProvider = ({ children }) => {
       
       // Call backend API for AI response
       const response = await api.post('/api/chat', {
-        message: content,
-        conversationId: conversationId
+        message: messageContent,
+        conversationId: conversationId,
+        responseLength: responseLength
       });
 
       console.log('Received AI response:', response.data);
@@ -155,15 +231,19 @@ export const ChatProvider = ({ children }) => {
       // Extract the message content properly
       let aiContent = response.data.message;
       
+      console.log('🔍 Raw AI content type:', typeof aiContent);
+      console.log('🔍 Raw AI content:', aiContent);
+      
       // If it's an object, try to extract the content
       if (typeof aiContent === 'object' && aiContent !== null) {
-        console.warn('⚠️ AI response is an object:', aiContent);
-        aiContent = aiContent.content || aiContent.text || JSON.stringify(aiContent);
+        console.error('⚠️ AI response is an object:', aiContent);
+        aiContent = aiContent.content || aiContent.text || aiContent.message || JSON.stringify(aiContent);
       }
       
       // Ensure it's a string
       aiContent = String(aiContent || 'No response received');
       
+      console.log('✅ Final AI content type:', typeof aiContent);
       console.log('✅ Processed AI content length:', aiContent.length);
       console.log('📝 Content preview:', aiContent.substring(0, 200));
 
@@ -247,11 +327,23 @@ export const ChatProvider = ({ children }) => {
     await loadMessages(conversation.id);
   };
 
+  const clearLocalStorage = () => {
+    localStorage.removeItem('messages');
+    localStorage.removeItem('conversations');
+    localStorage.removeItem('currentConversation');
+    setMessages([]);
+    setConversations([]);
+    setCurrentConversation(null);
+    console.log('✅ Local storage cleared');
+  };
+
   const value = {
     conversations,
     currentConversation,
     messages,
     loading,
+    responseLength,
+    setResponseLength,
     createConversation,
     sendMessage,
     deleteConversation,

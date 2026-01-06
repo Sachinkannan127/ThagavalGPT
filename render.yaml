@@ -14,8 +14,6 @@ services:
         value: 5000
       - key: GROQ_API_KEY
         sync: false
-      - key: OPENROUTER_API_KEY
-        sync: false
     
   # Frontend Service
   - type: web

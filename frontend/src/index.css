@@ -6,14 +6,14 @@
 
 :root[data-theme="light"] {
   --bg-primary: #ffffff;
-  --bg-secondary: #f7f7f8;
+  --bg-secondary: #f9f9f9;
   --bg-gradient-start: #ffffff;
-  --bg-gradient-end: #f7f7f8;
+  --bg-gradient-end: #f9f9f9;
   --bg-tertiary: #ececf1;
   
-  --text-primary: #343541;
-  --text-secondary: #6e6e80;
-  --text-tertiary: #9a9aaf;
+  --text-primary: #2d2d2d;
+  --text-secondary: #565869;
+  --text-tertiary: #8e8ea0;
   
   --border-primary: #e5e5e5;
   --border-secondary: #d1d5db;
@@ -21,8 +21,8 @@
   --shadow-color: rgba(0, 0, 0, 0.05);
   --shadow-color-hover: rgba(16, 163, 127, 0.15);
   
-  --message-user-bg: #f7f7f8;
-  --message-assistant-bg: #ffffff;
+  --message-user-bg: #ffffff;
+  --message-assistant-bg: #f7f7f8;
   --message-border: #e5e5e5;
   
   --accent-primary: #10a37f;
@@ -35,44 +35,44 @@
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #343541;
-  --bg-secondary: #444654;
-  --bg-gradient-start: #343541;
-  --bg-gradient-end: #202123;
-  --bg-tertiary: #40414f;
+  --bg-primary: #212121;
+  --bg-secondary: #2f2f2f;
+  --bg-gradient-start: #212121;
+  --bg-gradient-end: #171717;
+  --bg-tertiary: #3a3a3a;
   
   --text-primary: #ececf1;
   --text-secondary: #c5c5d2;
   --text-tertiary: #8e8ea0;
   
-  --border-primary: #565869;
-  --border-secondary: #6e6e80;
+  --border-primary: #4a4a4a;
+  --border-secondary: #565869;
   
-  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.5);
   --shadow-color-hover: rgba(16, 163, 127, 0.3);
   
-  --message-user-bg: #343541;
-  --message-assistant-bg: #444654;
-  --message-border: #565869;
+  --message-user-bg: #212121;
+  --message-assistant-bg: #2f2f2f;
+  --message-border: #4a4a4a;
   
   --accent-primary: #10a37f;
   --accent-hover: #1a9f7f;
   --accent-light: rgba(16, 163, 127, 0.15);
   
-  --scrollbar-track: #40414f;
-  --scrollbar-thumb: #565869;
-  --scrollbar-thumb-hover: #6e6e80;
+  --scrollbar-track: #2f2f2f;
+  --scrollbar-thumb: #4a4a4a;
+  --scrollbar-thumb-hover: #565869;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Söhne', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-primary);
   color: var(--text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 code {

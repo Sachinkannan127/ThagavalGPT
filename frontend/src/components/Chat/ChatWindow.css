@@ -13,32 +13,30 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 24px;
+  padding: 12px 20px;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-primary);
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  height: 60px;
 }
 
 .menu-btn {
   background: transparent;
   border: none;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .menu-btn:hover {
   background: var(--bg-secondary);
-  transform: scale(1.05);
 }
 
 .header-logo {
@@ -49,7 +47,7 @@
 }
 
 .header-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -63,19 +61,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: transparent;
   border: 1px solid var(--border-primary);
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .header-btn:hover {
   background: var(--bg-secondary);
-  transform: translateY(-1px);
+  border-color: var(--border-secondary);
 }
 
 .export-btn:hover {
@@ -237,9 +235,63 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 12px;
   position: sticky;
   bottom: 0;
   border-top: 1px solid var(--border-primary);
+}
+
+/* Response Length Selector */
+.response-length-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 800px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  border: 1px solid var(--border-primary);
+}
+
+.response-length-selector label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.length-buttons {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.length-btn {
+  flex: 1;
+  padding: 6px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.length-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.length-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(16, 163, 127, 0.3);
 }
 
 .input-form {

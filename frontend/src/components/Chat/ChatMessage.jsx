@@ -34,7 +34,36 @@ const ChatMessage = ({ message, onRegenerate }) => {
   // Apply syntax highlighting after content updates
   useEffect(() => {
     if (!isUser) {
-      Prism.highlightAll();
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        Prism.highlightAll();
+        
+        // Add copy button functionality
+        const copyButtons = document.querySelectorAll('.code-copy-btn');
+        copyButtons.forEach(button => {
+          button.onclick = async (e) => {
+            e.preventDefault();
+            const codeBlock = button.closest('.code-block-wrapper');
+            const codeElement = codeBlock.querySelector('code');
+            const code = codeElement.textContent;
+            
+            try {
+              await navigator.clipboard.writeText(code);
+              button.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>`;
+              setTimeout(() => {
+                button.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>`;
+              }, 2000);
+            } catch (err) {
+              console.error('Failed to copy:', err);
+            }
+          };
+        });
+      }, 100);
     }
   }, [message.content, isUser]);
 
@@ -42,13 +71,39 @@ const ChatMessage = ({ message, onRegenerate }) => {
   const renderedContent = useMemo(() => {
     if (isUser) return message.content;
     
+    // Safety check - ensure content is a string
+    let content = message.content;
+    if (typeof content === 'object' && content !== null) {
+      console.error('⚠️ Message content is object:', content);
+      content = content.text || content.content || content.message || JSON.stringify(content, null, 2);
+    }
+    
+    // Convert to string
+    content = String(content || 'No content');
+    
+    // Check if String() resulted in [object Object]
+    if (content === '[object Object]' || content.includes('[object Object]')) {
+      console.error('❌ Detected [object Object] in content, trying to recover...');
+      // Try to get original object from message
+      if (typeof message.content === 'object' && message.content !== null) {
+        content = JSON.stringify(message.content, null, 2);
+      } else {
+        content = 'Error: Could not display message content. Please refresh and try again.';
+      }
+    }
+    
     try {
       const renderer = new marked.Renderer();
       
-      // Custom code block renderer
+      // Custom code block renderer with Prism highlighting
       renderer.code = function(code, language) {
         const validLang = language || 'plaintext';
-        const escapedCode = String(code)
+        
+        // Clean the code content
+        const codeContent = String(code).trim();
+        
+        // HTML escape for safe rendering
+        const escapedCode = codeContent
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
@@ -58,14 +113,14 @@ const ChatMessage = ({ message, onRegenerate }) => {
         return `<div class="code-block-wrapper">
           <div class="code-header">
             <span class="code-language">${validLang}</span>
-            <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${code.replace(/"/g, '&quot;').replace(/'/g, '&#039;')}">
+            <button class="code-copy-btn" data-code="${escapedCode.replace(/"/g, '&quot;')}">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
             </button>
           </div>
-          <pre><code class="language-${validLang}">${escapedCode}</code></pre>
+          <pre class="language-${validLang}"><code class="language-${validLang}">${escapedCode}</code></pre>
         </div>`;
       };
       
@@ -83,18 +138,28 @@ const ChatMessage = ({ message, onRegenerate }) => {
         return `<p>${text}</p>\n`;
       };
       
-      marked.use({ renderer });
+      marked.use({ 
+        renderer,
+        breaks: true,
+        gfm: true,
+        pedantic: false
+      });
       
-      const content = String(message.content || '');
+      console.log('📄 Parsing markdown, content length:', content.length);
+      console.log('📄 Content preview:', content.substring(0, 300));
+      console.log('📄 Has code blocks (```):', content.includes('```'));
+      
+      // Use the safely converted content
       if (!content || content === 'undefined' || content === 'null') {
         return '<p>No response received</p>';
       }
       
       const parsed = marked.parse(content);
+      console.log('✅ Parsed HTML has code-block-wrapper:', parsed.includes('code-block-wrapper'));
       return parsed || '<p>Error rendering message</p>';
     } catch (error) {
       console.error('Markdown parsing error:', error);
-      return `<p>${String(message.content || 'Error rendering message')}</p>`;
+      return `<p>${String(content || 'Error rendering message')}</p>`;
     }
   }, [message.content, isUser]);
 

@@ -10,7 +10,7 @@ import './ChatWindow.css';
 const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
   const [input, setInput] = useState('');
   const [charCount, setCharCount] = useState(0);
-  const { messages, loading, sendMessage, currentConversation, createConversation } = useContext(ChatContext);
+  const { messages, loading, sendMessage, currentConversation, createConversation, responseLength, setResponseLength } = useContext(ChatContext);
   const { isDark } = useContext(ThemeContext);
   const messagesEndRef = useRef(null);
 
@@ -191,6 +191,44 @@ const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
       )}
 
       <div className="input-container">
+        <div className="response-length-selector">
+          <label>📝 Response:</label>
+          <div className="length-buttons">
+            <button 
+              type="button"
+              className={`length-btn ${responseLength === 'short' ? 'active' : ''}`}
+              onClick={() => {
+                setResponseLength('short');
+                toast.success('Response mode: Short (brief answers)', { duration: 2000 });
+              }}
+              title="Get brief, concise answers (1-3 sentences)"
+            >
+              Short
+            </button>
+            <button 
+              type="button"
+              className={`length-btn ${responseLength === 'auto' ? 'active' : ''}`}
+              onClick={() => {
+                setResponseLength('auto');
+                toast.success('Response mode: Auto (balanced)', { duration: 2000 });
+              }}
+              title="Balanced responses with good detail"
+            >
+              Auto
+            </button>
+            <button 
+              type="button"
+              className={`length-btn ${responseLength === 'detailed' ? 'active' : ''}`}
+              onClick={() => {
+                setResponseLength('detailed');
+                toast.success('Response mode: Detailed (comprehensive)', { duration: 2000 });
+              }}
+              title="Comprehensive, detailed explanations"
+            >
+              Detailed
+            </button>
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="input-form">
           <textarea
             value={input}
