@@ -133,14 +133,15 @@ export const ChatProvider = ({ children }) => {
       
       // If it's an object, try to extract the content
       if (typeof aiContent === 'object' && aiContent !== null) {
-        console.warn('AI response is an object:', aiContent);
+        console.warn('⚠️ AI response is an object:', aiContent);
         aiContent = aiContent.content || aiContent.text || JSON.stringify(aiContent);
       }
       
       // Ensure it's a string
       aiContent = String(aiContent || 'No response received');
       
-      console.log('Processed AI content:', aiContent.substring(0, 100) + '...');
+      console.log('✅ Processed AI content length:', aiContent.length);
+      console.log('📝 Content preview:', aiContent.substring(0, 200));
 
       // Add AI response to Firestore
       const aiMessage = {

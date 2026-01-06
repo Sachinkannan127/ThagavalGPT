@@ -20,50 +20,60 @@ const ChatMessage = ({ message, onRegenerate }) => {
   const renderedContent = useMemo(() => {
     if (isUser) return message.content;
     
-    const renderer = new marked.Renderer();
-    
-    // Custom code block renderer
-    renderer.code = function(code, language) {
-      const validLang = language || 'plaintext';
-      const escapedCode = String(code)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    try {
+      const renderer = new marked.Renderer();
       
-      return `<div class="code-block-wrapper">
-        <div class="code-header">
-          <span class="code-language">${validLang}</span>
-          <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${code.replace(/"/g, '&quot;')}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-          </button>
-        </div>
-        <pre><code class="language-${validLang}">${escapedCode}</code></pre>
-      </div>`;
-    };
-    
-    // Custom inline code renderer
-    renderer.codespan = function(code) {
-      const escapedCode = String(code)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-      return `<code class="inline-code">${escapedCode}</code>`;
-    };
-    
-    // Custom paragraph renderer to preserve newlines
-    renderer.paragraph = function(text) {
-      return `<p>${text}</p>\n`;
-    };
-    
-    marked.use({ renderer });
-    
-    const content = String(message.content || '');
-    return marked.parse(content);
+      // Custom code block renderer
+      renderer.code = function(code, language) {
+        const validLang = language || 'plaintext';
+        const escapedCode = String(code)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+        
+        return `<div class="code-block-wrapper">
+          <div class="code-header">
+            <span class="code-language">${validLang}</span>
+            <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.code)" data-code="${code.replace(/"/g, '&quot;').replace(/'/g, '&#039;')}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+          <pre><code class="language-${validLang}">${escapedCode}</code></pre>
+        </div>`;
+      };
+      
+      // Custom inline code renderer
+      renderer.codespan = function(code) {
+        const escapedCode = String(code)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        return `<code class="inline-code">${escapedCode}</code>`;
+      };
+      
+      // Custom paragraph renderer
+      renderer.paragraph = function(text) {
+        return `<p>${text}</p>\n`;
+      };
+      
+      marked.use({ renderer });
+      
+      const content = String(message.content || '');
+      if (!content || content === 'undefined' || content === 'null') {
+        return '<p>No response received</p>';
+      }
+      
+      const parsed = marked.parse(content);
+      return parsed || '<p>Error rendering message</p>';
+    } catch (error) {
+      console.error('Markdown parsing error:', error);
+      return `<p>${String(message.content || 'Error rendering message')}</p>`;
+    }
   }, [message.content, isUser]);
 
   const handleCopy = async () => {

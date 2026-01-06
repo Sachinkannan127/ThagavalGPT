@@ -1,5 +1,7 @@
 import express from 'express';
 import Groq from 'groq-sdk';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { generateText } from 'ai';
 import { verifyToken } from '../middleware/auth.js';
 import dotenv from 'dotenv';
 
@@ -16,16 +18,109 @@ if (process.env.GROQ_API_KEY) {
     apiKey: process.env.GROQ_API_KEY
   });
   console.log(`✅ Groq AI initialized with ${modelName} model`);
-  console.log(`📝 API Key: ${process.env.GROQ_API_KEY.substring(0, 20)}...`);
 } else {
-  console.warn('⚠️  GROQ_API_KEY not found. Using demo responses.');
+  console.warn('⚠️  GROQ_API_KEY not found.');
 }
 
-// AI response generator using Groq
+// Initialize OpenRouter AI
+let openrouter;
+let openrouterModel = 'deepseek/deepseek-chat'; // Free model for coding
+
+if (process.env.OPENROUTER_API_KEY) {
+  openrouter = createOpenRouter({
+    apiKey: process.env.OPENROUTER_API_KEY
+  });
+  console.log(`✅ OpenRouter AI initialized with ${openrouterModel} model`);
+} else {
+  console.warn('⚠️  OPENROUTER_API_KEY not found.');
+}
+
+// Determine which AI to use (prioritize OpenRouter for coding)
+const getPreferredAI = (message) => {
+  const codingKeywords = ['code', 'program', 'function', 'script', 'algorithm', 'debug', 'error', 'class', 'method'];
+  const isCodingQuestion = codingKeywords.some(keyword => 
+    message.toLowerCase().includes(keyword)
+  );
+  
+  // Use OpenRouter for coding questions if available
+  if (isCodingQuestion && openrouter) {
+    return 'openrouter';
+  }
+  
+  // Use OpenRouter if available, otherwise Groq
+  return openrouter ? 'openrouter' : 'groq';
+};
+
+// AI response generator
 const generateAIResponse = async (message, conversationHistory = []) => {
+  const aiProvider = getPreferredAI(message);
+  
+  console.log(`🤖 Using ${aiProvider.toUpperCase()} for this request`);
+  
+  if (aiProvider === 'openrouter') {
+    return await generateOpenRouterResponse(message, conversationHistory);
+  } else {
+    return await generateGroqResponse(message, conversationHistory);
+  }
+};
+
+// OpenRouter response generator
+const generateOpenRouterResponse = async (message, conversationHistory = []) => {
+  try {
+    if (!openrouter) {
+      return generateGroqResponse(message, conversationHistory);
+    }
+
+    // Build messages array
+    const messages = [
+      {
+        role: 'system',
+        content: `You are a helpful AI assistant specialized in coding and technical explanations. When providing code examples:
+- Always wrap code in markdown code blocks with the language specified (e.g., \`\`\`python, \`\`\`javascript, etc.)
+- Provide clear explanations before and after code blocks
+- Include comments in code for better understanding
+- Be concise but thorough in your explanations
+- For complex code, break it down step by step`
+      },
+      ...conversationHistory.map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content
+      })),
+      {
+        role: 'user',
+        content: message
+      }
+    ];
+
+    // Call OpenRouter API
+    const response = await generateText({
+      model: openrouter(openrouterModel),
+      messages: messages,
+      temperature: 0.7,
+      maxTokens: 4096,
+    });
+
+    const responseContent = response.text;
+    
+    if (!responseContent) {
+      return 'No response generated';
+    }
+    
+    console.log('📝 OpenRouter Response preview:', responseContent.substring(0, 100) + '...');
+    
+    return responseContent;
+  } catch (error) {
+    console.error('OpenRouter API Error:', error);
+    console.warn('⚠️  Falling back to Groq...');
+    return await generateGroqResponse(message, conversationHistory);
+  }
+};
+
+// Groq response generator
+const generateGroqResponse = async (message, conversationHistory = []) => {
   try {
     if (!groq) {
-      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ The Groq AI is not configured. To enable AI responses:\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n4. Restart the backend server\n\nGroq is FREE and much faster than other providers!`;
+      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ AI is not configured. To enable AI responses:\n\n**Option 1: OpenRouter (FREE models available)**\n1. Visit https://openrouter.ai/keys\n2. Create a FREE API key\n3. Add OPENROUTER_API_KEY to backend/.env\n\n**Option 2: Groq (Free & Fast)**\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n\n4. Restart the backend server`;
     }
 
     // Build messages array with system prompt and conversation history
@@ -63,7 +158,7 @@ const generateAIResponse = async (message, conversationHistory = []) => {
       return 'No response generated';
     }
     
-    console.log('📝 AI Response preview:', responseContent.substring(0, 100) + '...');
+    console.log('📝 Groq Response preview:', responseContent.substring(0, 100) + '...');
     
     return responseContent;
   } catch (error) {

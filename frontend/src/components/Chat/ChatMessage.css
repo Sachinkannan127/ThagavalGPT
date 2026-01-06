@@ -99,25 +99,30 @@
 
 .user-message .message-text {
   background: #3b82f6;
-  color: white;
+  color: #ffffff !important;
   border-bottom-right-radius: 4px;
 }
 
 .assistant-message .message-text {
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   padding: 4px 0;
+}
+
+.assistant-message .message-text * {
+  color: var(--text-primary) !important;
 }
 
 /* Markdown content styling */
 .markdown-content {
   white-space: normal;
+  width: 100%;
 }
 
 .markdown-content h1, .markdown-content h2, .markdown-content h3 {
   margin: 16px 0 8px 0;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
 }
 
 .markdown-content h1 { font-size: 24px; }
@@ -126,15 +131,18 @@
 
 .markdown-content p {
   margin: 8px 0;
+  color: var(--text-primary) !important;
 }
 
 .markdown-content ul, .markdown-content ol {
   margin: 8px 0;
   padding-left: 24px;
+  color: var(--text-primary) !important;
 }
 
 .markdown-content li {
   margin: 4px 0;
+  color: var(--text-primary) !important;
 }
 
 .markdown-content a {
@@ -156,15 +164,17 @@
 }
 
 .markdown-content .code-block-wrapper {
-  margin: 12px 0;
+  margin: 16px 0;
   border-radius: 8px;
   overflow: hidden;
   background: #1e1e1e;
+  width: 100%;
+  max-width: 100%;
 }
 
 .markdown-content .code-header {
   background: #2d2d2d;
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid #3d3d3d;
   display: flex;
   justify-content: space-between;
@@ -172,11 +182,11 @@
 }
 
 .markdown-content .code-language {
-  font-size: 11px;
-  color: #888;
+  font-size: 12px;
+  color: #a0a0a0;
   text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
 }
 
 .markdown-content .code-copy-btn {
@@ -184,8 +194,8 @@
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   transition: all 0.2s;
@@ -199,18 +209,26 @@
 .markdown-content .code-block-wrapper pre {
   margin: 0;
   background: #1e1e1e;
-  padding: 16px;
+  padding: 20px;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 .markdown-content .code-block-wrapper code {
   display: block;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: 'Consolas', 'Monaco', 'Courier New', 'Menlo', monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.8;
   color: #d4d4d4;
   white-space: pre;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
   word-wrap: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+}
 }
 
 .message-actions {
