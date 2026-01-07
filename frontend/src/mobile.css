@@ -1,13 +1,54 @@
 /* Mobile-First Responsive Enhancements for PWA */
 
+/* Tablet landscape and small desktop */
+@media (max-width: 1024px) {
+  .home-header .header-nav {
+    gap: 1rem;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .hero-title {
+    font-size: 3rem;
+  }
+}
+
+/* Tablet portrait */
+@media (max-width: 968px) {
+  .home-header .header-nav {
+    display: none;
+  }
+  
+  .header-content {
+    padding: 0.75rem 1rem;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+  }
+}
+
 /* Mobile devices (portrait) */
 @media (max-width: 768px) {
   :root {
     --sidebar-width: 280px;
   }
 
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
   body {
-    overflow: hidden;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Chat Layout Mobile */
@@ -15,6 +56,11 @@
     flex-direction: column;
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    position: relative;
+  }
+  
+  .chat-container.split-view {
+    display: flex;
   }
 
   .sidebar {
@@ -24,6 +70,7 @@
     width: 85%;
     max-width: 320px;
     height: 100%;
+    height: 100dvh;
     z-index: 1000;
     transition: left 0.3s ease;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
@@ -37,6 +84,7 @@
     width: 100%;
     height: 100vh;
     height: 100dvh;
+    flex: 1;
   }
 
   /* Header adjustments for mobile */
@@ -142,7 +190,24 @@
     font-size: 24px;
   }
 
+  /* Touch-friendly button sizing */
+  button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  
+  /* Prevent zoom on input focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
   /* Sidebar mobile */
+  .sidebar {
+    -webkit-overflow-scrolling: touch;
+  }
+  
   .sidebar-header {
     padding: 16px 12px;
   }

@@ -1,0 +1,42 @@
+╔═══════════════════════════════════════════════════════════════╗
+║           📱 MOBILE ACCESS - QUICK REFERENCE                  ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                               ║
+║  YOUR NETWORK IP: 10.216.254.73                              ║
+║                                                               ║
+║  🌐 ACCESS URLS:                                             ║
+║    Frontend: http://10.216.254.73:3002/                     ║
+║    Backend:  http://10.216.254.73:5000/                     ║
+║    Health:   http://10.216.254.73:5000/health               ║
+║                                                               ║
+║  🚀 START COMMANDS:                                          ║
+║                                                               ║
+║    Terminal 1 - Backend:                                     ║
+║    $ cd backend                                               ║
+║    $ node server.js                                           ║
+║                                                               ║
+║    Terminal 2 - Frontend:                                    ║
+║    $ cd frontend                                              ║
+║    $ npm run dev                                              ║
+║                                                               ║
+║  ✅ REQUIREMENTS:                                            ║
+║    • Both devices on SAME WiFi                               ║
+║    • Backend running (Terminal 1)                            ║
+║    • Frontend running (Terminal 2)                           ║
+║    • Windows Firewall allows Node.js                         ║
+║                                                               ║
+║  🔧 IF IP CHANGES:                                           ║
+║    1. Check new IP: ipconfig | findstr IPv4                  ║
+║    2. Update frontend/.env: VITE_API_URL=http://NEW_IP:5000 ║
+║    3. Restart both servers                                   ║
+║                                                               ║
+║  📱 MOBILE BROWSER TEST:                                     ║
+║    http://10.216.254.73:3002/                                ║
+║                                                               ║
+║  💡 TROUBLESHOOTING:                                         ║
+║    • Backend not connecting? Check firewall                  ║
+║    • Frontend not loading? Verify same WiFi                  ║
+║    • CORS errors? Restart backend server                     ║
+║    • 404 errors? Check backend is running                    ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝

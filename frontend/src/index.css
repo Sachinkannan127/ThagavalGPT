@@ -4,6 +4,24 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Prevent iOS text size adjustment */
+  -webkit-text-size-adjust: 100%;
+  /* Enable smooth scrolling */
+  scroll-behavior: smooth;
+  /* Prevent horizontal overflow */
+  overflow-x: hidden;
+}
+
+body {
+  /* Prevent iOS bounce effect */
+  overscroll-behavior-y: none;
+  /* Improve touch interactions */
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent text selection on double tap */
+  -webkit-touch-callout: none;
+}
+
 :root[data-theme="light"] {
   --bg-primary: #ffffff;
   --bg-secondary: #f7f7f8;
