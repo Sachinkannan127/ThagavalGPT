@@ -6,28 +6,32 @@
 
 :root[data-theme="light"] {
   --bg-primary: #ffffff;
-  --bg-secondary: #f9f9f9;
+  --bg-secondary: #f7f7f8;
   --bg-gradient-start: #ffffff;
   --bg-gradient-end: #f9f9f9;
   --bg-tertiary: #ececf1;
+  --bg-hover: #f0f0f0;
   
-  --text-primary: #2d2d2d;
-  --text-secondary: #565869;
+  --text-primary: #202123;
+  --text-secondary: #6e6e80;
   --text-tertiary: #8e8ea0;
   
-  --border-primary: #e5e5e5;
-  --border-secondary: #d1d5db;
+  --border-primary: #d9d9e3;
+  --border-secondary: #c5c5d2;
   
   --shadow-color: rgba(0, 0, 0, 0.05);
   --shadow-color-hover: rgba(16, 163, 127, 0.15);
   
   --message-user-bg: #ffffff;
   --message-assistant-bg: #f7f7f8;
-  --message-border: #e5e5e5;
+  --message-border: #d9d9e3;
   
   --accent-primary: #10a37f;
   --accent-hover: #0d8a6b;
   --accent-light: rgba(16, 163, 127, 0.1);
+  
+  --primary-color: #10a37f;
+  --primary-hover: #0d8a6b;
   
   --scrollbar-track: #f1f1f1;
   --scrollbar-thumb: #c5c5d2;
@@ -35,33 +39,37 @@
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #212121;
-  --bg-secondary: #2f2f2f;
-  --bg-gradient-start: #212121;
-  --bg-gradient-end: #171717;
-  --bg-tertiary: #3a3a3a;
+  --bg-primary: #343541;
+  --bg-secondary: #444654;
+  --bg-gradient-start: #343541;
+  --bg-gradient-end: #2a2b32;
+  --bg-tertiary: #565869;
+  --bg-hover: #40414f;
   
   --text-primary: #ececf1;
   --text-secondary: #c5c5d2;
   --text-tertiary: #8e8ea0;
   
-  --border-primary: #4a4a4a;
-  --border-secondary: #565869;
+  --border-primary: #565869;
+  --border-secondary: #6e6e80;
   
   --shadow-color: rgba(0, 0, 0, 0.5);
   --shadow-color-hover: rgba(16, 163, 127, 0.3);
   
-  --message-user-bg: #212121;
-  --message-assistant-bg: #2f2f2f;
-  --message-border: #4a4a4a;
+  --message-user-bg: #343541;
+  --message-assistant-bg: #444654;
+  --message-border: #565869;
   
   --accent-primary: #10a37f;
   --accent-hover: #1a9f7f;
   --accent-light: rgba(16, 163, 127, 0.15);
   
+  --primary-color: #10a37f;
+  --primary-hover: #1a9f7f;
+  
   --scrollbar-track: #2f2f2f;
-  --scrollbar-thumb: #4a4a4a;
-  --scrollbar-thumb-hover: #565869;
+  --scrollbar-thumb: #565869;
+  --scrollbar-thumb-hover: #6e6e80;
 }
 
 body {

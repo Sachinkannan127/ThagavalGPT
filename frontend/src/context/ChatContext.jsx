@@ -228,20 +228,40 @@ export const ChatProvider = ({ children }) => {
 
       console.log('Received AI response:', response.data);
       
-      // Extract the message content properly
-      let aiContent = response.data.message;
+      // Extract the message content properly with robust object handling
+      let aiContent = response.data.message || response.data;
       
       console.log('🔍 Raw AI content type:', typeof aiContent);
       console.log('🔍 Raw AI content:', aiContent);
       
-      // If it's an object, try to extract the content
+      // If it's an object, try to extract the content recursively
       if (typeof aiContent === 'object' && aiContent !== null) {
-        console.error('⚠️ AI response is an object:', aiContent);
-        aiContent = aiContent.content || aiContent.text || aiContent.message || JSON.stringify(aiContent);
+        console.error('⚠️ AI response is an object:', JSON.stringify(aiContent, null, 2));
+        
+        // Try multiple paths to extract string content
+        aiContent = aiContent.message 
+          || aiContent.content 
+          || aiContent.text 
+          || aiContent.data
+          || aiContent.response
+          || (aiContent.choices && aiContent.choices[0]?.message?.content)
+          || JSON.stringify(aiContent, null, 2);
       }
       
       // Ensure it's a string
       aiContent = String(aiContent || 'No response received');
+      
+      // Final check for [object Object]
+      if (aiContent === '[object Object]' || aiContent.includes('[object Object]')) {
+        console.error('❌ Detected [object Object] after conversion!');
+        // Try to recover from original response
+        const originalResponse = response.data.message || response.data;
+        if (typeof originalResponse === 'object' && originalResponse !== null) {
+          aiContent = JSON.stringify(originalResponse, null, 2);
+        } else {
+          aiContent = 'Error: Could not parse AI response. Please try again.';
+        }
+      }
       
       console.log('✅ Final AI content type:', typeof aiContent);
       console.log('✅ Processed AI content length:', aiContent.length);

@@ -56,8 +56,20 @@ export const AuthProvider = ({ children }) => {
         photoURL: null
       });
 
+      // Store token immediately
+      const token = await result.user.getIdToken();
+      localStorage.setItem('authToken', token);
+      
+      // Update user state immediately
+      const userData = {
+        ...result.user,
+        displayName,
+        email
+      };
+      setUser(userData);
+
       toast.success('Account created successfully!');
-      return result.user;
+      return userData;
     } catch (error) {
       toast.error(error.message);
       throw error;
@@ -67,8 +79,23 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Wait for the auth state to be updated and token to be stored
+      const token = await result.user.getIdToken();
+      localStorage.setItem('authToken', token);
+      
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+      const userData = {
+        ...result.user,
+        ...userDoc.data()
+      };
+      
+      // Update user state immediately
+      setUser(userData);
+      
       toast.success('Logged in successfully!');
-      return result.user;
+      return userData;
     } catch (error) {
       toast.error(error.message);
       throw error;

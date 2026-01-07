@@ -2,27 +2,60 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { FiUser, FiCpu, FiCopy, FiCheck, FiRefreshCw } from 'react-icons/fi';
 import { marked } from 'marked';
 import toast from 'react-hot-toast';
-import Prism from 'prismjs';
-import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-json';
 import './ChatMessage.css';
 
-// Configure marked for better rendering
+// Configure marked renderer once
+const renderer = new marked.Renderer();
+
+// Custom code block renderer with Prism highlighting
+renderer.code = function(code, language) {
+  const validLang = language || 'plaintext';
+  
+  // Clean the code content
+  const codeContent = String(code).trim();
+  
+  // HTML escape for safe rendering
+  const escapedCode = codeContent
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  
+  return `<div class="code-block-wrapper">
+    <div class="code-header">
+      <span class="code-language">${validLang}</span>
+      <button class="code-copy-btn" data-code="${escapedCode.replace(/"/g, '&quot;')}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <pre class="language-${validLang}"><code class="language-${validLang}">${escapedCode}</code></pre>
+  </div>`;
+};
+
+// Custom inline code renderer
+renderer.codespan = function(code) {
+  const escapedCode = String(code)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  return `<code class="inline-code">${escapedCode}</code>`;
+};
+
+// Custom paragraph renderer
+renderer.paragraph = function(text) {
+  return `<p>${text}</p>\n`;
+};
+
+// Configure marked options globally
 marked.setOptions({
+  renderer,
   breaks: true,
   gfm: true,
+  pedantic: false,
   headerIds: false,
   mangle: false
 });
@@ -31,13 +64,11 @@ const ChatMessage = ({ message, onRegenerate }) => {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
 
-  // Apply syntax highlighting after content updates
+  // Add copy button functionality after content updates
   useEffect(() => {
     if (!isUser) {
       // Small delay to ensure DOM is updated
       setTimeout(() => {
-        Prism.highlightAll();
-        
         // Add copy button functionality
         const copyButtons = document.querySelectorAll('.code-copy-btn');
         copyButtons.forEach(button => {
@@ -73,78 +104,37 @@ const ChatMessage = ({ message, onRegenerate }) => {
     
     // Safety check - ensure content is a string
     let content = message.content;
+    
+    // Deep object check
     if (typeof content === 'object' && content !== null) {
       console.error('⚠️ Message content is object:', content);
-      content = content.text || content.content || content.message || JSON.stringify(content, null, 2);
+      content = content.text 
+        || content.content 
+        || content.message 
+        || content.data
+        || JSON.stringify(content, null, 2);
     }
     
     // Convert to string
-    content = String(content || 'No content');
+    content = String(content || 'No content available');
     
     // Check if String() resulted in [object Object]
     if (content === '[object Object]' || content.includes('[object Object]')) {
-      console.error('❌ Detected [object Object] in content, trying to recover...');
-      // Try to get original object from message
+      console.error('❌ Detected [object Object] in ChatMessage, attempting recovery...');
+      
+      // Try to recover from original message object
       if (typeof message.content === 'object' && message.content !== null) {
-        content = JSON.stringify(message.content, null, 2);
+        try {
+          content = `**Error displaying message. Raw data:**\n\n\`\`\`json\n${JSON.stringify(message.content, null, 2)}\n\`\`\``;
+        } catch (e) {
+          content = '❌ **Error:** Could not display message content. Please clear the chat and try again.';
+        }
       } else {
-        content = 'Error: Could not display message content. Please refresh and try again.';
+        content = '❌ **Error:** Message content is not available. Please refresh the page and try again.';
       }
     }
     
     try {
-      const renderer = new marked.Renderer();
-      
-      // Custom code block renderer with Prism highlighting
-      renderer.code = function(code, language) {
-        const validLang = language || 'plaintext';
-        
-        // Clean the code content
-        const codeContent = String(code).trim();
-        
-        // HTML escape for safe rendering
-        const escapedCode = codeContent
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-        
-        return `<div class="code-block-wrapper">
-          <div class="code-header">
-            <span class="code-language">${validLang}</span>
-            <button class="code-copy-btn" data-code="${escapedCode.replace(/"/g, '&quot;')}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </button>
-          </div>
-          <pre class="language-${validLang}"><code class="language-${validLang}">${escapedCode}</code></pre>
-        </div>`;
-      };
-      
-      // Custom inline code renderer
-      renderer.codespan = function(code) {
-        const escapedCode = String(code)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        return `<code class="inline-code">${escapedCode}</code>`;
-      };
-      
-      // Custom paragraph renderer
-      renderer.paragraph = function(text) {
-        return `<p>${text}</p>\n`;
-      };
-      
-      marked.use({ 
-        renderer,
-        breaks: true,
-        gfm: true,
-        pedantic: false
-      });
-      
       console.log('📄 Parsing markdown, content length:', content.length);
       console.log('📄 Content preview:', content.substring(0, 300));
       console.log('📄 Has code blocks (```):', content.includes('```'));
@@ -154,8 +144,12 @@ const ChatMessage = ({ message, onRegenerate }) => {
         return '<p>No response received</p>';
       }
       
+      // Parse the markdown to HTML using marked v17 API
       const parsed = marked.parse(content);
+      console.log('✅ Parsed HTML length:', parsed.length);
       console.log('✅ Parsed HTML has code-block-wrapper:', parsed.includes('code-block-wrapper'));
+      console.log('✅ Parsed HTML preview:', parsed.substring(0, 500));
+      
       return parsed || '<p>Error rendering message</p>';
     } catch (error) {
       console.error('Markdown parsing error:', error);

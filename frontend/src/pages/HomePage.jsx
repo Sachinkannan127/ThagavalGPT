@@ -19,6 +19,43 @@ const HomePage = () => {
     }
   };
 
+  const handleNavClick = (section) => {
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleDownload = () => {
+    // Create a simple download for a getting started guide
+    const text = `ThagavalGPT - Getting Started Guide
+
+Welcome to ThagavalGPT!
+
+This is your AI-powered conversation partner.
+
+Features:
+- Lightning fast responses
+- Code assistance
+- Multi-language support
+- Secure and private
+
+To get started:
+1. Sign up for a free account
+2. Log in to access the chat
+3. Start asking questions!
+
+Visit: ${window.location.origin}
+`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ThagavalGPT-Guide.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const features = [
     {
       icon: <FiZap size={32} />,
@@ -70,7 +107,16 @@ const HomePage = () => {
             <Logo size="small" showText={true} />
           </div>
           <nav className="header-nav">
-            <button className="theme-toggle" onClick={toggleTheme}>
+            <button onClick={() => handleNavClick('about')} className="nav-link">About</button>
+            <button onClick={() => handleNavClick('features')} className="nav-link">Features</button>
+            <button onClick={() => handleNavClick('learn')} className="nav-link">Learn</button>
+            <button onClick={() => handleNavClick('business')} className="nav-link">Business</button>
+            <button onClick={() => handleNavClick('pricing')} className="nav-link">Pricing</button>
+            <button onClick={() => handleNavClick('images')} className="nav-link">Images</button>
+            <button onClick={handleDownload} className="nav-link">Download</button>
+          </nav>
+          <div className="header-actions">
+            <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
               {theme === 'light' ? '🌙' : '☀️'}
             </button>
             {user ? (
@@ -87,7 +133,7 @@ const HomePage = () => {
                 </button>
               </>
             )}
-          </nav>
+          </div>
         </div>
       </header>
 
@@ -150,6 +196,146 @@ const HomePage = () => {
               <p>{feature.description}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="about-section">
+        <div className="section-content">
+          <h2>About ThagavalGPT</h2>
+          <p>
+            ThagavalGPT is an advanced AI-powered conversation partner designed to help you with 
+            a wide range of tasks. From answering questions to writing code, our intelligent 
+            assistant is here to boost your productivity and creativity.
+          </p>
+          <p>
+            Built with cutting-edge AI technology, ThagavalGPT provides fast, accurate, and 
+            helpful responses to all your queries. Whether you're a student, professional, or 
+            just curious, we're here to assist you 24/7.
+          </p>
+        </div>
+      </section>
+
+      {/* Learn Section */}
+      <section id="learn" className="learn-section">
+        <div className="section-content">
+          <h2>Learn More About AI</h2>
+          <div className="learn-grid">
+            <div className="learn-card">
+              <h3>📚 Getting Started</h3>
+              <p>Learn how to use ThagavalGPT effectively with our comprehensive guides and tutorials.</p>
+            </div>
+            <div className="learn-card">
+              <h3>💡 Best Practices</h3>
+              <p>Discover tips and tricks to get the most out of your AI conversations.</p>
+            </div>
+            <div className="learn-card">
+              <h3>🎓 Advanced Techniques</h3>
+              <p>Master advanced prompting techniques for better results.</p>
+            </div>
+            <div className="learn-card">
+              <h3>🔒 Safety & Privacy</h3>
+              <p>Understand how we protect your data and ensure safe AI interactions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Business Section */}
+      <section id="business" className="business-section">
+        <div className="section-content">
+          <h2>ThagavalGPT for Business</h2>
+          <p>
+            Empower your team with AI-powered productivity tools. ThagavalGPT helps businesses 
+            automate tasks, generate content, and solve complex problems faster.
+          </p>
+          <div className="business-benefits">
+            <div className="benefit-item">
+              <FiZap size={24} />
+              <h3>Boost Productivity</h3>
+              <p>Automate repetitive tasks and focus on what matters</p>
+            </div>
+            <div className="benefit-item">
+              <FiShield size={24} />
+              <h3>Enterprise Security</h3>
+              <p>Bank-level encryption and data protection</p>
+            </div>
+            <div className="benefit-item">
+              <FiUsers size={24} />
+              <h3>Team Collaboration</h3>
+              <p>Share insights and work together seamlessly</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="pricing-section">
+        <div className="section-content">
+          <h2>Simple, Transparent Pricing</h2>
+          <div className="pricing-grid">
+            <div className="pricing-card">
+              <h3>Free</h3>
+              <div className="price">$0<span>/month</span></div>
+              <ul>
+                <li>✓ Basic AI responses</li>
+                <li>✓ Limited messages per day</li>
+                <li>✓ Community support</li>
+              </ul>
+              <button className="pricing-btn" onClick={handleGetStarted}>Get Started</button>
+            </div>
+            <div className="pricing-card featured">
+              <div className="badge">Most Popular</div>
+              <h3>Pro</h3>
+              <div className="price">$20<span>/month</span></div>
+              <ul>
+                <li>✓ Unlimited messages</li>
+                <li>✓ Priority responses</li>
+                <li>✓ Advanced features</li>
+                <li>✓ Email support</li>
+              </ul>
+              <button className="pricing-btn primary" onClick={handleGetStarted}>Upgrade to Pro</button>
+            </div>
+            <div className="pricing-card">
+              <h3>Enterprise</h3>
+              <div className="price">Custom</div>
+              <ul>
+                <li>✓ Everything in Pro</li>
+                <li>✓ Custom integrations</li>
+                <li>✓ Dedicated support</li>
+                <li>✓ SLA guarantee</li>
+              </ul>
+              <button className="pricing-btn" onClick={handleGetStarted}>Contact Sales</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Images Section */}
+      <section id="images" className="images-section">
+        <div className="section-content">
+          <h2>AI Image Generation</h2>
+          <p>
+            Create stunning images with AI. Describe what you want, and our AI will generate 
+            beautiful, unique images in seconds.
+          </p>
+          <div className="image-features">
+            <div className="image-feature">
+              <h3>🎨 Text to Image</h3>
+              <p>Transform your ideas into visual art</p>
+            </div>
+            <div className="image-feature">
+              <h3>⚡ Fast Generation</h3>
+              <p>Get results in seconds, not hours</p>
+            </div>
+            <div className="image-feature">
+              <h3>🎯 High Quality</h3>
+              <p>Professional-grade images every time</p>
+            </div>
+          </div>
+          <button className="cta-button primary" onClick={handleGetStarted}>
+            Try Image Generation
+          </button>
         </div>
       </section>
 

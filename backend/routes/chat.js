@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Initialize Groq AI
 let groq;
-let modelName = 'llama-3.3-70b-versatile';
+const modelName = 'llama-3.3-70b-versatile';
 
 if (process.env.GROQ_API_KEY) {
   groq = new Groq({
@@ -17,18 +17,14 @@ if (process.env.GROQ_API_KEY) {
   });
   console.log(`✅ Groq AI initialized with ${modelName} model`);
 } else {
-  console.warn('⚠️  GROQ_API_KEY not found.');
+  console.warn('⚠️  GROQ_API_KEY not found. AI responses will be in demo mode.');
 }
 
-// AI response generator - using Groq only
-const generateAIResponse = async (message, conversationHistory = []) => {
-  return await generateGroqResponse(message, conversationHistory);
-};
 // Groq response generator
 const generateGroqResponse = async (message, conversationHistory = [], responseLength = 'auto') => {
   try {
     if (!groq) {
-      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ AI is not configured. To enable AI responses:\n\n**Groq (Free & Fast)**\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n\n4. Restart the backend server`;
+      return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ AI is not configured. To enable AI responses:\n\n**Groq (Free & Fast)**\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n4. Restart the backend server`;
     }
 
     // Limit conversation history to last 4 messages for speed
@@ -40,76 +36,14 @@ const generateGroqResponse = async (message, conversationHistory = [], responseL
     
     if (responseLength === 'short') {
       maxTokens = 800;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Answer concisely and directly.
-
-Knowledge cutoff: 2023-10
-Current date: ${new Date().toISOString().split('T')[0]}
-
-Guidelines:
-- Give brief, direct answers (1-3 sentences)
-- Start with the key point immediately
-- Use simple, clear language
-- For code: minimal comments, clean syntax
-- Format: Use **bold** for emphasis, \`code\` for inline code
-
-Be helpful, accurate, and concise.`;
+      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Answer concisely and directly.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Give brief, direct answers (1-3 sentences)\n- Start with the key point immediately\n- Use simple, clear language\n- For code: minimal comments, clean syntax\n- Format: Use **bold** for emphasis, \`code\` for inline code\n\nBe helpful, accurate, and concise.`;
     } else if (responseLength === 'detailed') {
       maxTokens = 3000;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide comprehensive, detailed responses.
-
-Knowledge cutoff: 2023-10
-Current date: ${new Date().toISOString().split('T')[0]}
-
-Guidelines:
-- Start with a clear overview (2-3 sentences)
-- Break down complex topics into sections with **headings**
-- Use bullet points and numbered lists for clarity
-- Provide examples and context
-- For code:
-  - Use \`\`\`language code blocks with proper syntax
-  - Add detailed comments explaining logic
-  - Show multiple approaches when relevant
-  - Include example output or usage
-- Explain edge cases and best practices
-- Use **bold** for key terms, \`code\` for inline code
-- End with a summary or next steps when appropriate
-
-Be thorough, educational, and well-structured like ChatGPT.`;
+      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide comprehensive, detailed responses.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Start with a clear overview (2-3 sentences)\n- Break down complex topics into sections with **headings**\n- Use bullet points and numbered lists for clarity\n- Provide examples and context\n- For code:\n  - Use \`\`\`language code blocks with proper syntax\n  - Add detailed comments explaining logic\n  - Show multiple approaches when relevant\n  - Include example output or usage\n- Explain edge cases and best practices\n- Use **bold** for key terms, \`code\` for inline code\n- End with a summary or next steps when appropriate\n\nBe thorough, educational, and well-structured like ChatGPT.`;
     } else {
       // Auto mode - balanced ChatGPT style
       maxTokens = 1500;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide helpful, well-formatted responses.
-
-Knowledge cutoff: 2023-10
-Current date: ${new Date().toISOString().split('T')[0]}
-
-Guidelines:
-- Begin with a brief, clear summary (1-2 sentences)
-- Structure information with bullet points or numbered lists
-- Use sections with **bold headings** for complex topics
-- For code:
-  - Use \`\`\`language code blocks (python, javascript, etc.)
-  - Add helpful comments
-  - Explain what the code does before/after the block
-  - Show example output when relevant
-- Use **bold** for important terms
-- Use \`backticks\` for inline code, commands, or file names
-- Keep responses clear, organized, and professional
-- Format like:
-
-[Brief introduction]
-
-**Main Points:**
-- Key concept 1
-- Key concept 2
-
-\`\`\`language
-code example
-\`\`\`
-
-**Output:** [expected result]
-
-Be helpful, accurate, and well-formatted like ChatGPT.`;
+      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide helpful, well-formatted responses.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Begin with a brief, clear summary (1-2 sentences)\n- Structure information with bullet points or numbered lists\n- Use sections with **bold headings** for complex topics\n- For code:\n  - Use \`\`\`language code blocks (python, javascript, etc.)\n  - Add helpful comments\n  - Explain what the code does before/after the block\n  - Show example output when relevant\n- Use **bold** for important terms\n- Use \`backticks\` for inline code, commands, or file names\n- Keep responses clear, organized, and professional\n\nBe helpful, accurate, and well-formatted like ChatGPT.`;
     }
 
     // Build messages array with system prompt and conversation history
@@ -140,18 +74,17 @@ Be helpful, accurate, and well-formatted like ChatGPT.`;
 
     let responseContent = completion.choices[0]?.message?.content;
     
-    console.log('🔍 Raw Groq response type:', typeof responseContent);
-    console.log('🔍 Raw response:', responseContent);
+    console.log('🔍 Raw Groq response:', typeof responseContent, responseContent);
     
     // Robust object-to-string conversion
     if (responseContent === null || responseContent === undefined) {
       console.error('❌ Groq returned null/undefined');
-      return 'No response generated';
+      throw new Error('No response generated from AI');
     }
     
-    if (typeof responseContent === 'object') {
+    // Handle object response (shouldn't happen with Groq, but safety check)
+    if (typeof responseContent === 'object' && responseContent !== null) {
       console.warn('⚠️ Groq returned object:', JSON.stringify(responseContent, null, 2));
-      // Try multiple extraction paths
       responseContent = responseContent.text 
         || responseContent.content 
         || responseContent.message
@@ -162,23 +95,17 @@ Be helpful, accurate, and well-formatted like ChatGPT.`;
     // Force to string and validate
     responseContent = String(responseContent).trim();
     
-    if (!responseContent || responseContent === 'No response generated' || responseContent === '[object Object]') {
-      console.error('❌ Invalid response content:', responseContent);
-      return 'No response generated. Please try again.';
+    // Final validation - reject [object Object] or empty responses
+    if (!responseContent || responseContent === '[object Object]' || responseContent === 'undefined' || responseContent === 'null') {
+      console.error('❌ Invalid response after conversion:', responseContent);
+      throw new Error('Invalid response format from AI. Please try again.');
     }
     
-    console.log('✅ Final response type:', typeof responseContent);
-    console.log('✅ Response length:', responseContent.length);
-    console.log('📝 Response preview:', responseContent.substring(0, 150) + '...');
+    console.log('✅ Valid response:', responseContent.length, 'chars');
     
     return responseContent;
   } catch (error) {
     console.error('Groq API Error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      status: error.status,
-      statusText: error.statusText
-    });
     
     // Provide specific error messages
     if (error.message?.includes('API key') || error.status === 401) {
@@ -189,7 +116,6 @@ Be helpful, accurate, and well-formatted like ChatGPT.`;
       throw new Error('⏳ API quota exceeded. Wait a moment or check your Groq account at https://console.groq.com/');
     }
     
-    // Generic error
     throw new Error(`🤖 AI Error: ${error.message || 'Unknown error'}. Check backend logs for details.`);
   }
 };
@@ -213,33 +139,31 @@ router.post('/chat', verifyToken, async (req, res) => {
       });
     }
 
-    // Generate AI response
+    // Generate AI response using Groq
     console.log(`🤖 Generating ${responseLength} AI response...`);
     let aiResponse = await generateGroqResponse(message, [], responseLength);
     
-    // Final safety check - ensure response is a string
+    // Extra validation layer
     if (typeof aiResponse === 'object' && aiResponse !== null) {
-      console.error('❌ AI response is still an object!', JSON.stringify(aiResponse, null, 2));
-      aiResponse = String(aiResponse.text || aiResponse.content || aiResponse.message || JSON.stringify(aiResponse));
+      console.error('❌ Response is still an object after generation!');
+      aiResponse = JSON.stringify(aiResponse);
     }
     
-    // Force string conversion and validate
     aiResponse = String(aiResponse).trim();
     
-    if (aiResponse === '[object Object]' || !aiResponse) {
-      console.error('❌ Invalid final response:', aiResponse);
+    // Reject invalid responses
+    if (aiResponse === '[object Object]' || aiResponse === 'undefined' || aiResponse === 'null' || !aiResponse) {
+      console.error('❌ Final response invalid:', aiResponse);
       return res.status(500).json({
         error: 'Invalid AI response',
         message: 'The AI generated an invalid response. Please try again.'
       });
     }
     
-    console.log('✅ AI response generated:', {
+    console.log('✅ AI response ready:', {
       type: typeof aiResponse,
       length: aiResponse.length,
-      hasCodeBlock: aiResponse.includes('```'),
-      isString: typeof aiResponse === 'string',
-      preview: aiResponse.substring(0, 150)
+      preview: aiResponse.substring(0, 100)
     });
 
     res.json({
