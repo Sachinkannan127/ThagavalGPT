@@ -5,7 +5,10 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  updateProfile
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
@@ -122,12 +125,94 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Store token
+      const token = await result.user.getIdToken();
+      localStorage.setItem('authToken', token);
+      
+      // Check if user document exists, if not create it
+      const userDocRef = doc(db, 'users', result.user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        await setDoc(userDocRef, {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+          createdAt: new Date().toISOString()
+        });
+      }
+      
+      // Update user state
+      const userData = {
+        ...result.user,
+        ...(userDoc.exists() ? userDoc.data() : {})
+      };
+      setUser(userData);
+      
+      toast.success('Signed in with Google successfully!');
+      return userData;
+    } catch (error) {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        toast.error(error.message);
+      }
+      throw error;
+    }
+  };
+
+  const signInWithGithub = async () => {
+    try {
+      const provider = new GithubAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Store token
+      const token = await result.user.getIdToken();
+      localStorage.setItem('authToken', token);
+      
+      // Check if user document exists, if not create it
+      const userDocRef = doc(db, 'users', result.user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        await setDoc(userDocRef, {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+          createdAt: new Date().toISOString()
+        });
+      }
+      
+      // Update user state
+      const userData = {
+        ...result.user,
+        ...(userDoc.exists() ? userDoc.data() : {})
+      };
+      setUser(userData);
+      
+      toast.success('Signed in with GitHub successfully!');
+      return userData;
+    } catch (error) {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        toast.error(error.message);
+      }
+      throw error;
+    }
+  };
+
   const value = {
     user,
     register,
     login,
     logout,
     resetPassword,
+    signInWithGoogle,
+    signInWithGithub,
     loading
   };
 

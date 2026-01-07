@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiZap, FiCode, FiGlobe, FiShield, FiTrendingUp, FiUsers, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { FiZap, FiCode, FiGlobe, FiShield, FiTrendingUp, FiUsers, FiArrowRight, FiCheckCircle, FiSend, FiCpu, FiLayers, FiActivity } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import Logo from '../components/Logo';
@@ -10,6 +10,25 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  
+  // AI Demo State
+  const [demoInput, setDemoInput] = useState('');
+  const [demoMessages, setDemoMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typedText, setTypedText] = useState('');
+  const [currentPrompt, setCurrentPrompt] = useState(0);
+  
+  // Statistics Counter
+  const [stats, setStats] = useState({
+    users: 0,
+    messages: 0,
+    accuracy: 0,
+    uptime: 0
+  });
+  
+  // Selected AI Model
+  const [selectedModel, setSelectedModel] = useState('gemini');
+  const [activeExample, setActiveExample] = useState(0);
 
   const handleGetStarted = () => {
     if (user) {
@@ -55,6 +74,96 @@ Visit: ${window.location.origin}
     a.click();
     URL.revokeObjectURL(url);
   };
+  
+  // Handle AI Demo
+  const handleDemoSubmit = (e) => {
+    e.preventDefault();
+    if (!demoInput.trim()) return;
+    
+    const userMessage = { role: 'user', content: demoInput };
+    setDemoMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+    setDemoInput('');
+    
+    // Simulate AI response
+    setTimeout(() => {
+      let response = demoResponses.default;
+      const input = demoInput.toLowerCase();
+      
+      if (input.includes('quantum')) response = demoResponses.quantum;
+      else if (input.includes('python') || input.includes('code') || input.includes('sort')) response = demoResponses.python;
+      else if (input.includes('marketing') || input.includes('tagline')) response = demoResponses.marketing;
+      else if (input.includes('translate') || input.includes('spanish')) response = demoResponses.translate;
+      
+      typeResponse(response);
+    }, 500);
+  };
+  
+  // Typing animation effect
+  const typeResponse = (text) => {
+    let index = 0;
+    setTypedText('');
+    
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setTypedText(prev => prev + text[index]);
+        index++;
+      } else {
+        clearInterval(interval);
+        setIsTyping(false);
+        setDemoMessages(prev => [...prev, { role: 'assistant', content: text }]);
+        setTypedText('');
+      }
+    }, 20);
+  };
+  
+  // Statistics counter animation
+  useEffect(() => {
+    const targetStats = {
+      users: 50000,
+      messages: 1000000,
+      accuracy: 98,
+      uptime: 99.9
+    };
+    
+    const duration = 2000;
+    const steps = 60;
+    const interval = duration / steps;
+    
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      
+      setStats({
+        users: Math.floor(targetStats.users * progress),
+        messages: Math.floor(targetStats.messages * progress),
+        accuracy: Math.floor(targetStats.accuracy * progress),
+        uptime: (targetStats.uptime * progress).toFixed(1)
+      });
+      
+      if (step >= steps) {
+        clearInterval(timer);
+        setStats(targetStats);
+      }
+    }, interval);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  // Cycle through example prompts
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentPrompt(prev => (prev + 1) % examplePrompts.length);
+    }, 3000);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  // Use example prompt
+  const useExamplePrompt = (text) => {
+    setDemoInput(text);
+  };
 
   const features = [
     {
@@ -97,6 +206,51 @@ Visit: ${window.location.origin}
     'Solve complex problems',
     'Provide creative ideas'
   ];
+  
+  // AI Models
+  const aiModels = [
+    {
+      name: 'Gemini Pro',
+      id: 'gemini',
+      icon: <FiCpu />,
+      speed: '⚡ Ultra Fast',
+      accuracy: '98%',
+      description: 'Google\'s most capable AI model for complex tasks'
+    },
+    {
+      name: 'Groq LLaMA',
+      id: 'groq',
+      icon: <FiLayers />,
+      speed: '🚀 Lightning',
+      accuracy: '96%',
+      description: 'Fastest inference with exceptional performance'
+    },
+    {
+      name: 'GPT-4',
+      id: 'gpt4',
+      icon: <FiActivity />,
+      speed: '⚡ Fast',
+      accuracy: '99%',
+      description: 'Most advanced reasoning and problem-solving'
+    }
+  ];
+  
+  // Example prompts for demo
+  const examplePrompts = [
+    { text: 'Explain quantum computing simply', category: 'Education' },
+    { text: 'Write a Python function to sort an array', category: 'Code' },
+    { text: 'Create a marketing tagline for eco-friendly products', category: 'Creative' },
+    { text: 'Translate "Hello, how are you?" to Spanish', category: 'Language' }
+  ];
+  
+  // AI responses for demo
+  const demoResponses = {
+    'quantum': 'Quantum computing uses quantum mechanics principles to process information. Unlike classical computers that use bits (0 or 1), quantum computers use qubits that can be in multiple states simultaneously through superposition. This allows them to solve certain complex problems exponentially faster!',
+    'python': 'Here\'s a Python function to sort an array:\n\n```python\ndef sort_array(arr):\n    return sorted(arr)\n\n# Using merge sort\ndef merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)\n```',
+    'marketing': 'Here are some eco-friendly marketing taglines:\n\n1. "Green Today, Sustainable Tomorrow"\n2. "Nature\'s Choice, Your Voice"\n3. "Eco-Smart Living, Planet-First Giving"\n4. "Pure Products, Pure Planet"\n\nThese emphasize environmental consciousness while being memorable!',
+    'translate': 'The Spanish translation is: "Hola, ¿cómo estás?"\n\nBreakdown:\n- Hello = Hola\n- How are you? = ¿Cómo estás?\n\nNote: In formal context, you\'d use "¿Cómo está usted?"',
+    'default': 'I\'m ThagavalGPT, your AI assistant! I can help you with coding, writing, learning, problem-solving, and much more. Try asking me anything - from explaining complex concepts to writing code or creative content!'
+  };
 
   return (
     <div className="home-page">
@@ -178,6 +332,135 @@ Visit: ${window.location.origin}
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Live Demo Section */}
+      <section className="ai-demo-section">
+        <div className="section-header">
+          <h2>Try AI Now - No Sign-up Required</h2>
+          <p>Experience the power of AI instantly</p>
+        </div>
+        <div className="demo-container">
+          <div className="demo-chat">
+            <div className="demo-messages">
+              {demoMessages.length === 0 ? (
+                <div className="demo-welcome">
+                  <div className="welcome-icon">🤖</div>
+                  <h3>Hi! I'm ThagavalGPT</h3>
+                  <p>Ask me anything or try one of these examples:</p>
+                  <div className="example-chips">
+                    {examplePrompts.map((prompt, idx) => (
+                      <button 
+                        key={idx} 
+                        className="example-chip"
+                        onClick={() => useExamplePrompt(prompt.text)}
+                      >
+                        <span className="chip-category">{prompt.category}</span>
+                        {prompt.text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {demoMessages.map((msg, idx) => (
+                    <div key={idx} className={`demo-message ${msg.role}`}>
+                      <div className="message-content">
+                        {msg.content.split('\n').map((line, i) => (
+                          <div key={i}>{line}</div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && typedText && (
+                    <div className="demo-message assistant typing">
+                      <div className="message-content">
+                        {typedText}<span className="cursor">|</span>
+                      </div>
+                    </div>
+                  )}
+                  {isTyping && !typedText && (
+                    <div className="demo-message assistant typing">
+                      <div className="typing-indicator">
+                        <span></span><span></span><span></span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            <form className="demo-input" onSubmit={handleDemoSubmit}>
+              <input
+                type="text"
+                value={demoInput}
+                onChange={(e) => setDemoInput(e.target.value)}
+                placeholder="Ask me anything..."
+                disabled={isTyping}
+              />
+              <button type="submit" disabled={isTyping || !demoInput.trim()}>
+                <FiSend />
+              </button>
+            </form>
+          </div>
+          <div className="demo-info">
+            <div className="rotating-prompt">
+              <div className="prompt-label">Try asking:</div>
+              <div className="prompt-text">
+                "{examplePrompts[currentPrompt].text}"
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Models Showcase */}
+      <section className="models-section">
+        <div className="section-header">
+          <h2>Powered by Multiple AI Models</h2>
+          <p>Choose the best model for your needs</p>
+        </div>
+        <div className="models-grid">
+          {aiModels.map((model, idx) => (
+            <div 
+              key={idx} 
+              className={`model-card ${selectedModel === model.id ? 'active' : ''}`}
+              onClick={() => setSelectedModel(model.id)}
+            >
+              <div className="model-icon">{model.icon}</div>
+              <h3>{model.name}</h3>
+              <div className="model-stats">
+                <span className="stat-badge">{model.speed}</span>
+                <span className="stat-badge">{model.accuracy} Accurate</span>
+              </div>
+              <p>{model.description}</p>
+              {selectedModel === model.id && (
+                <div className="active-indicator">✓ Currently Selected</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="stats-section">
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-number">{stats.users.toLocaleString()}+</div>
+            <div className="stat-label">Active Users</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{stats.messages.toLocaleString()}+</div>
+            <div className="stat-label">Messages Processed</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{stats.accuracy}%</div>
+            <div className="stat-label">Accuracy Rate</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{stats.uptime}%</div>
+            <div className="stat-label">Uptime</div>
           </div>
         </div>
       </section>
