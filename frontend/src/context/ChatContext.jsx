@@ -226,13 +226,17 @@ export const ChatProvider = ({ children }) => {
         responseLength: responseLength
       });
 
-      console.log('Received AI response:', response.data);
+      console.log('📥 Received full response:', response);
+      console.log('📥 Response data:', response.data);
+      console.log('📥 Response data type:', typeof response.data);
+      console.log('📥 Response.data.message:', response.data.message);
+      console.log('📥 Response.data.message type:', typeof response.data.message);
       
-      // Extract the message content properly with robust object handling
-      let aiContent = response.data.message || response.data;
+      // Extract the message content - MUST be the .message field
+      let aiContent = response.data.message;
       
-      console.log('🔍 Raw AI content type:', typeof aiContent);
-      console.log('🔍 Raw AI content:', aiContent);
+      console.log('🔍 Extracted aiContent:', aiContent);
+      console.log('🔍 aiContent type:', typeof aiContent);
       
       // If it's an object, try to extract the content recursively
       if (typeof aiContent === 'object' && aiContent !== null) {

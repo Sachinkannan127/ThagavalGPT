@@ -19,14 +19,16 @@
 
 .message-wrapper.user-message {
   background: var(--message-user-bg);
-  justify-content: center;
+  justify-content: flex-end;
+  padding-right: 24px;
 }
 
 .message-wrapper.assistant-message {
   background: var(--message-assistant-bg);
   border-top: 1px solid var(--border-primary);
   border-bottom: 1px solid var(--border-primary);
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: 24px;
 }
 
 .message-content {
@@ -38,11 +40,13 @@
 }
 
 .user-message .message-content {
-  flex-direction: row;
+  flex-direction: row-reverse;
+  max-width: 600px;
 }
 
 .assistant-message .message-content {
   flex-direction: row;
+  max-width: 768px;
 }
 
 .message-icon {
@@ -62,13 +66,15 @@
 }
 
 .user-message .message-icon {
-  background: #5a5fc7;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border-radius: 50%;
 }
 
 .assistant-message .message-icon {
   background: var(--accent-primary);
   color: white;
+  border-radius: 2px;
 }
 
 .message-body {
@@ -81,7 +87,7 @@
 }
 
 .user-message .message-body {
-  align-items: flex-start;
+  align-items: flex-end;
 }
 
 .assistant-message .message-body {

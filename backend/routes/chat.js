@@ -35,15 +35,63 @@ const generateGroqResponse = async (message, conversationHistory = [], responseL
     let maxTokens = 1500;
     
     if (responseLength === 'short') {
-      maxTokens = 800;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Answer concisely and directly.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Give brief, direct answers (1-3 sentences)\n- Start with the key point immediately\n- Use simple, clear language\n- For code: minimal comments, clean syntax\n- Format: Use **bold** for emphasis, \`code\` for inline code\n\nBe helpful, accurate, and concise.`;
+      maxTokens = 1200;
+      systemPrompt = `You are ChatGPT, a helpful AI assistant. Answer concisely and directly.
+
+Knowledge cutoff: 2023-10
+Current date: ${new Date().toISOString().split('T')[0]}
+
+Guidelines:
+- Give brief, direct answers (1-3 sentences for explanations)
+- For code requests: ALWAYS provide working code with syntax highlighting
+- Use \`\`\`language for code blocks (javascript, python, html, css, etc.)
+- Add minimal but helpful comments in code
+- Use **bold** for emphasis, \`code\` for inline code
+
+Be helpful and always generate requested code.`;
     } else if (responseLength === 'detailed') {
-      maxTokens = 3000;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide comprehensive, detailed responses.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Start with a clear overview (2-3 sentences)\n- Break down complex topics into sections with **headings**\n- Use bullet points and numbered lists for clarity\n- Provide examples and context\n- For code:\n  - Use \`\`\`language code blocks with proper syntax\n  - Add detailed comments explaining logic\n  - Show multiple approaches when relevant\n  - Include example output or usage\n- Explain edge cases and best practices\n- Use **bold** for key terms, \`code\` for inline code\n- End with a summary or next steps when appropriate\n\nBe thorough, educational, and well-structured like ChatGPT.`;
+      maxTokens = 4000;
+      systemPrompt = `You are ChatGPT, a helpful AI assistant. Provide comprehensive, detailed responses.
+
+Knowledge cutoff: 2023-10
+Current date: ${new Date().toISOString().split('T')[0]}
+
+Guidelines:
+- Start with a clear overview
+- Break down complex topics into sections with **headings**
+- For ALL code requests: ALWAYS generate complete, working code
+- Use \`\`\`language code blocks with proper syntax highlighting
+  - javascript, python, java, html, css, typescript, etc.
+- Add detailed comments explaining the logic
+- Show multiple approaches when relevant
+- Include example usage and output
+- Explain edge cases and best practices
+- Use **bold** for key terms, \`backticks\` for inline code
+
+IMPORTANT: When asked for code, ALWAYS provide it in proper code blocks with language specified.`;
     } else {
-      // Auto mode - balanced ChatGPT style
-      maxTokens = 1500;
-      systemPrompt = `You are ChatGPT, a large language model trained by OpenAI. Provide helpful, well-formatted responses.\n\nKnowledge cutoff: 2023-10\nCurrent date: ${new Date().toISOString().split('T')[0]}\n\nGuidelines:\n- Begin with a brief, clear summary (1-2 sentences)\n- Structure information with bullet points or numbered lists\n- Use sections with **bold headings** for complex topics\n- For code:\n  - Use \`\`\`language code blocks (python, javascript, etc.)\n  - Add helpful comments\n  - Explain what the code does before/after the block\n  - Show example output when relevant\n- Use **bold** for important terms\n- Use \`backticks\` for inline code, commands, or file names\n- Keep responses clear, organized, and professional\n\nBe helpful, accurate, and well-formatted like ChatGPT.`;
+      // Auto mode - balanced ChatGPT style with strong code generation
+      maxTokens = 2500;
+      systemPrompt = `You are ChatGPT, a helpful AI assistant. Provide clear, well-formatted responses.
+
+Knowledge cutoff: 2023-10
+Current date: ${new Date().toISOString().split('T')[0]}
+
+Guidelines:
+- Begin with a brief, clear summary when needed
+- For code requests: ALWAYS generate complete, working code
+- Use proper code blocks with language specification:
+  \`\`\`javascript
+  // Your code here
+  \`\`\`
+- Supported languages: javascript, python, java, html, css, typescript, sql, bash, etc.
+- Add helpful comments to explain the code
+- Explain what the code does before/after the block
+- Show example output when relevant
+- Use **bold** for important terms
+- Use \`backticks\` for inline code, commands, file names
+
+CRITICAL: When user asks for code (e.g., "write a function", "create a component", "make a script"), ALWAYS provide the actual code in properly formatted code blocks. Never just describe what the code should do.`;
     }
 
     // Build messages array with system prompt and conversation history
@@ -166,11 +214,20 @@ router.post('/chat', verifyToken, async (req, res) => {
       preview: aiResponse.substring(0, 100)
     });
 
-    res.json({
+    // Send plain string response to prevent object wrapping issues
+    const responsePayload = {
       message: aiResponse,
       conversationId: conversationId,
       timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Sending response payload:', {
+      messageType: typeof responsePayload.message,
+      messageLength: responsePayload.message?.length,
+      messagePreview: String(responsePayload.message).substring(0, 50)
     });
+    
+    res.json(responsePayload);
   } catch (error) {
     console.error('❌ Chat error:', error);
     res.status(500).json({ 
