@@ -4,6 +4,33 @@ import { marked } from 'marked';
 import toast from 'react-hot-toast';
 import './ChatMessage.css';
 
+// Helper function to safely convert any value to displayable string
+const safeStringify = (value) => {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'function') return `[Function: ${value.name || 'anonymous'}]`;
+  
+  // Handle objects
+  if (typeof value === 'object') {
+    // Check for common message properties
+    if (value.text) return String(value.text);
+    if (value.content) return String(value.content);
+    if (value.message) return String(value.message);
+    if (value.data) return safeStringify(value.data);
+    
+    // Try to JSON stringify
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch (e) {
+      return `[Object: ${value.constructor?.name || 'Unknown'}]`;
+    }
+  }
+  
+  return String(value);
+};
+
 // Configure marked renderer once
 const renderer = new marked.Renderer();
 
@@ -100,38 +127,20 @@ const ChatMessage = ({ message, onRegenerate }) => {
 
   // Render markdown content
   const renderedContent = useMemo(() => {
-    if (isUser) return message.content;
+    if (isUser) return safeStringify(message.content);
     
-    // Safety check - ensure content is a string
-    let content = message.content;
+    // Use safeStringify to convert content
+    let content = safeStringify(message.content);
     
-    // Deep object check
-    if (typeof content === 'object' && content !== null) {
-      console.error('⚠️ Message content is object:', content);
-      content = content.text 
-        || content.content 
-        || content.message 
-        || content.data
-        || JSON.stringify(content, null, 2);
+    // Final validation
+    if (!content || content === 'undefined' || content === 'null') {
+      content = 'No response received';
     }
     
-    // Convert to string
-    content = String(content || 'No content available');
-    
-    // Check if String() resulted in [object Object]
-    if (content === '[object Object]' || content.includes('[object Object]')) {
-      console.error('❌ Detected [object Object] in ChatMessage, attempting recovery...');
-      
-      // Try to recover from original message object
-      if (typeof message.content === 'object' && message.content !== null) {
-        try {
-          content = `**Error displaying message. Raw data:**\n\n\`\`\`json\n${JSON.stringify(message.content, null, 2)}\n\`\`\``;
-        } catch (e) {
-          content = '❌ **Error:** Could not display message content. Please clear the chat and try again.';
-        }
-      } else {
-        content = '❌ **Error:** Message content is not available. Please refresh the page and try again.';
-      }
+    // Check if it still contains [object Object]
+    if (content.includes('[object Object]')) {
+      console.error('❌ Still has [object Object], raw:', message.content);
+      content = `**Error displaying message**\n\nRaw data:\n\`\`\`json\n${JSON.stringify(message, null, 2)}\n\`\`\``;
     }
     
     try {
@@ -159,10 +168,7 @@ const ChatMessage = ({ message, onRegenerate }) => {
 
   const handleCopy = async () => {
     try {
-      const contentToCopy = typeof message.content === 'object'
-        ? JSON.stringify(message.content, null, 2)
-        : message.content;
-      
+      const contentToCopy = safeStringify(message.content);
       await navigator.clipboard.writeText(contentToCopy);
       setCopied(true);
       toast.success('Copied to clipboard');
@@ -199,9 +205,7 @@ const ChatMessage = ({ message, onRegenerate }) => {
         <div className="message-body">
           {isUser ? (
             <div className="message-text">
-              {typeof message.content === 'object'
-                ? JSON.stringify(message.content, null, 2)
-                : message.content}
+              {safeStringify(message.content)}
             </div>
           ) : (
             <div 
