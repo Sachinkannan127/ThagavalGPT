@@ -7,13 +7,7 @@
   background: var(--bg-primary);
 }
 
-/* Split View Layout */
-.chat-container.split-view {
-  display: grid;
-  grid-template-columns: 280px 380px 1fr;
-  gap: 0;
-  align-items: stretch;
-}
+/* Remove split view - now just sidebar + chat */
 
 /* Left Panel */
 .left-panel {
