@@ -6,12 +6,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Listen on all network interfaces for mobile access
     port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-    },
+    // Proxy disabled when using network IP - mobile will connect directly
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:5000',
+    //     changeOrigin: true,
+    //   },
+    // },
   },
   build: {
     manifest: true,

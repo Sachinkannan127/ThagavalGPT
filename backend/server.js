@@ -54,15 +54,28 @@ const corsOptions = {
       callback(null, true); // Allow all in development
     }
   },
-  credentials: true,
+  credentials: false, // Disable credentials for mobile compatibility with network IPs
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200, // For legacy browser support
+  preflightContinue: false,
 };
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly for mobile
+app.options('*', cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Request logging for debugging mobile issues
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} from ${req.ip}`);
+  next();
+});
 
 // Routes
 app.use('/api', chatRoutes);

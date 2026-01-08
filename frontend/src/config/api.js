@@ -15,8 +15,20 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 30000, // 30 second timeout
-  withCredentials: true, // Enable credentials for CORS
+  withCredentials: false, // Disable for mobile - causes issues with network IPs
 });
+
+// Test backend connection on initialization
+const testConnection = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/health`, { timeout: 5000 });
+    console.log('✅ Backend connection successful:', response.data);
+  } catch (error) {
+    console.error('❌ Backend connection failed:', error.message);
+    console.error('🔧 Check: 1) Backend is running 2) Same WiFi network 3) Correct VITE_API_URL');
+  }
+};
+testConnection();
 
 // Add token to requests
 api.interceptors.request.use(async (config) => {
@@ -47,18 +59,37 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
-// Handle response errors
+// Retry logic for mobile network issues
+let retryCount = 0;
+const MAX_RETRIES = 2;
+
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response) => {
+    retryCount = 0; // Reset on success
+    return response;
+  },
+  async (error) => {
+    const config = error.config;
+    
+    // Retry for network errors on mobile
+    if ((error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') && 
+        config && retryCount < MAX_RETRIES) {
+      retryCount++;
+      console.log(`🔄 Retrying request (${retryCount}/${MAX_RETRIES})...`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+      return api(config);
+    }
+    
+    retryCount = 0; // Reset retry count
+    
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
       console.error('Request timeout:', error);
       toast.error('Request timed out. Please check your connection.');
     } else if (error.code === 'ERR_NETWORK' || !error.response) {
       console.error('Network error:', error);
       toast.error(
-        'Cannot connect to server. Ensure backend is running and you\'re on the same network.',
-        { duration: 5000 }
+        `Cannot connect to ${API_URL}. Check: 1) Backend running 2) Same WiFi 3) Correct IP`,
+        { duration: 6000 }
       );
     } else if (error.response) {
       // Server responded with error
