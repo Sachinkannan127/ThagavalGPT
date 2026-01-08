@@ -1,12 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { FiX, FiSun, FiMoon, FiMonitor, FiCheck } from 'react-icons/fi';
+import { FiX, FiSun, FiMoon, FiMonitor, FiCheck, FiCode } from 'react-icons/fi';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
+import { ChatContext } from '../context/ChatContext';
 import './SettingsModal.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { user } = useContext(AuthContext);
+  const { codeMode, setCodeMode } = useContext(ChatContext);
   const [selectedTheme, setSelectedTheme] = useState(theme);
 
   if (!isOpen) return null;
@@ -44,6 +46,35 @@ const SettingsModal = ({ isOpen, onClose }) => {
               <div className="user-details-large">
                 <div className="user-name-large">{user?.displayName || 'User'}</div>
                 <div className="user-email-large">{user?.email}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Code Generation Mode */}
+          <div className="settings-section">
+            <h3>Code Generation</h3>
+            <p className="section-description">Optimize AI responses specifically for code generation tasks</p>
+            <div className="theme-options">
+              <div
+                className={`theme-option ${codeMode ? 'active' : ''}`}
+                onClick={() => setCodeMode(!codeMode)}
+              >
+                <div className="theme-option-icon">
+                  <FiCode size={20} />
+                </div>
+                <div className="theme-option-details">
+                  <div className="theme-option-name">Code Generation Mode</div>
+                  <div className="theme-option-description">
+                    {codeMode 
+                      ? 'Enabled - AI optimized for code generation with detailed comments' 
+                      : 'Disabled - Standard conversational AI responses'}
+                  </div>
+                </div>
+                {codeMode && (
+                  <div className="theme-option-check">
+                    <FiCheck size={20} />
+                  </div>
+                )}
               </div>
             </div>
           </div>

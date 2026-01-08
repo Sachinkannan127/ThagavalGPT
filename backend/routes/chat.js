@@ -9,19 +9,19 @@ const router = express.Router();
 
 // Initialize Groq AI
 let groq;
-const modelName = 'llama-3.3-70b-versatile';
+const groqModel = 'llama-3.3-70b-versatile';
 
 if (process.env.GROQ_API_KEY) {
   groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
   });
-  console.log(`✅ Groq AI initialized with ${modelName} model`);
+  console.log(`✅ Groq AI initialized with ${groqModel} model`);
 } else {
-  console.warn('⚠️  GROQ_API_KEY not found. AI responses will be in demo mode.');
+  console.warn('⚠️  GROQ_API_KEY not found. Groq will be unavailable.');
 }
 
 // Groq response generator
-const generateGroqResponse = async (message, conversationHistory = [], responseLength = 'auto') => {
+const generateGroqResponse = async (message, conversationHistory = [], responseLength = 'auto', codeMode = false) => {
   try {
     if (!groq) {
       return `🤖 Demo Mode: You asked "${message}"\n\n⚠️ AI is not configured. To enable AI responses:\n\n**Groq (Free & Fast)**\n1. Visit https://console.groq.com/keys\n2. Create a FREE API key\n3. Add GROQ_API_KEY to backend/.env\n4. Restart the backend server`;
@@ -30,11 +30,61 @@ const generateGroqResponse = async (message, conversationHistory = [], responseL
     // Limit conversation history to last 4 messages for speed
     const recentHistory = conversationHistory.slice(-4);
 
-    // Determine response style based on length preference
+    // Determine response style based on length preference and code mode
     let systemPrompt = '';
     let maxTokens = 1500;
     
-    if (responseLength === 'short') {
+    if (codeMode) {
+      // Code Generation Mode - Specialized for code tasks
+      maxTokens = 4000;
+      systemPrompt = `You are an expert Code Generator AI specialized in creating high-quality, production-ready code.
+
+Knowledge cutoff: 2023-10
+Current date: ${new Date().toISOString().split('T')[0]}
+
+**CRITICAL RULES FOR CODE GENERATION:**
+
+1. **ALWAYS GENERATE COMPLETE, WORKING CODE**
+   - Never provide pseudo-code or incomplete snippets
+   - Include all necessary imports, dependencies, and setup
+   - Code must be copy-paste ready and executable
+
+2. **PROPER CODE FORMATTING**
+   - Use triple backticks with language specification:
+     \`\`\`javascript
+     \`\`\`python
+     \`\`\`typescript
+     \`\`\`html
+     \`\`\`css
+     \`\`\`sql
+     \`\`\`bash
+   - Maintain consistent indentation (2 or 4 spaces)
+   - Follow language-specific style guides
+
+3. **CODE DOCUMENTATION**
+   - Add clear, helpful comments explaining complex logic
+   - Include JSDoc/docstrings for functions
+   - Explain parameters, return values, and side effects
+   - Add usage examples when helpful
+
+4. **BEST PRACTICES**
+   - Write clean, maintainable code
+   - Follow DRY (Don't Repeat Yourself) principle
+   - Include error handling and edge cases
+   - Use modern language features appropriately
+   - Consider security and performance
+
+5. **RESPONSE STRUCTURE**
+   - Brief explanation of what the code does (1-2 sentences)
+   - The complete code in proper code blocks
+   - Key features or important notes
+   - Usage example if applicable
+
+6. **SUPPORTED LANGUAGES**
+   JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, Ruby, Swift, Kotlin, HTML, CSS, SQL, Bash, and more.
+
+**YOUR MISSION:** Generate clean, working, well-documented code that users can immediately use.`;
+    } else if (responseLength === 'short') {
       maxTokens = 1200;
       systemPrompt = `You are ChatGPT, a helpful AI assistant. Answer concisely and directly.
 
@@ -112,7 +162,7 @@ CRITICAL: When user asks for code (e.g., "write a function", "create a component
 
     // Call Groq API
     const completion = await groq.chat.completions.create({
-      model: modelName,
+      model: groqModel,
       messages: messages,
       temperature: 0.7,
       max_tokens: maxTokens,
@@ -171,13 +221,14 @@ CRITICAL: When user asks for code (e.g., "write a function", "create a component
 // Chat endpoint
 router.post('/chat', verifyToken, async (req, res) => {
   try {
-    const { message, conversationId, responseLength = 'auto' } = req.body;
+    const { message, conversationId, responseLength = 'auto', codeMode = false } = req.body;
     
     console.log('📩 Received chat request:', { 
       user: req.user?.email || req.user?.uid,
       messageLength: message?.length,
       conversationId,
-      responseLength
+      responseLength,
+      codeMode: codeMode ? '💻 CODE MODE' : '💬 CHAT MODE'
     });
     
     if (!message) {
@@ -187,9 +238,9 @@ router.post('/chat', verifyToken, async (req, res) => {
       });
     }
 
-    // Generate AI response using Groq
-    console.log(`🤖 Generating ${responseLength} AI response...`);
-    let aiResponse = await generateGroqResponse(message, [], responseLength);
+    // Generate AI response
+    console.log(`🤖 Generating ${responseLength} response ${codeMode ? 'in CODE MODE' : ''}...`);
+    let aiResponse = await generateGroqResponse(message, [], responseLength, codeMode);
     
     // Extra validation layer
     if (typeof aiResponse === 'object' && aiResponse !== null) {

@@ -62,12 +62,22 @@ export const ChatProvider = ({ children }) => {
     const saved = localStorage.getItem('responseLength');
     return saved || 'auto'; // Default to 'auto' if not set
   });
+  const [codeMode, setCodeMode] = useState(() => {
+    const saved = localStorage.getItem('codeMode');
+    return saved === 'true'; // Default to false
+  });
 
   // Save responseLength to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('responseLength', responseLength);
     console.log('📏 Response length set to:', responseLength);
   }, [responseLength]);
+
+  // Save codeMode to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('codeMode', codeMode);
+    console.log('💻 Code generation mode:', codeMode ? 'ON' : 'OFF');
+  }, [codeMode]);
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -223,7 +233,8 @@ export const ChatProvider = ({ children }) => {
       const response = await api.post('/api/chat', {
         message: messageContent,
         conversationId: conversationId,
-        responseLength: responseLength
+        responseLength: responseLength,
+        codeMode: codeMode
       });
 
       console.log('📥 Received full response:', response);
@@ -368,6 +379,8 @@ export const ChatProvider = ({ children }) => {
     loading,
     responseLength,
     setResponseLength,
+    codeMode,
+    setCodeMode,
     createConversation,
     sendMessage,
     deleteConversation,
