@@ -44,11 +44,24 @@
   html, body {
     overflow-x: hidden;
     width: 100%;
+    /* Better text rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   body {
     /* Enable momentum scrolling on iOS */
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure minimum touch target size (44x44px) */
+  button, a, input, textarea, select {
+    min-height: 44px;
+  }
+  
+  /* Better tap highlighting */
+  button:active, a:active {
+    opacity: 0.7;
   }
 
   /* Chat Layout Mobile */
