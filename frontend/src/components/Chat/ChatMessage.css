@@ -1,9 +1,10 @@
 .message-wrapper {
-  padding: 20px 0;
+  padding: 24px 0;
   display: flex;
   width: 100%;
   animation: slideIn 0.3s ease;
   transition: background 0.15s ease;
+  justify-content: center;
 }
 
 @keyframes slideIn {
@@ -19,34 +20,30 @@
 
 .message-wrapper.user-message {
   background: var(--message-user-bg);
-  justify-content: flex-end;
-  padding-right: 24px;
 }
 
 .message-wrapper.assistant-message {
   background: var(--message-assistant-bg);
   border-top: 1px solid var(--border-primary);
   border-bottom: 1px solid var(--border-primary);
-  justify-content: flex-start;
-  padding-left: 24px;
 }
 
 .message-content {
   display: flex;
   gap: 16px;
-  max-width: 768px;
+  max-width: 900px;
   width: 100%;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 
 .user-message .message-content {
   flex-direction: row-reverse;
-  max-width: 600px;
+  justify-content: flex-start;
 }
 
 .assistant-message .message-content {
   flex-direction: row;
-  max-width: 768px;
+  justify-content: flex-start;
 }
 
 .message-icon {

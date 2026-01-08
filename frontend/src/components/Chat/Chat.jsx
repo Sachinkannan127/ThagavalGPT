@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { FiCpu, FiLayers, FiActivity, FiZap, FiCode, FiGlobe, FiShield, FiTrendingUp, FiUsers, FiCheckCircle, FiMenu, FiX } from 'react-icons/fi';
+import { FiCpu, FiLayers, FiActivity, FiCheckCircle, FiMenu, FiX } from 'react-icons/fi';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import Logo from '../Logo';
@@ -50,29 +50,6 @@ const Chat = () => {
     }
   ];
 
-  const features = [
-    {
-      icon: <FiZap size={24} />,
-      title: 'Lightning Fast',
-      description: 'Get instant responses powered by advanced AI'
-    },
-    {
-      icon: <FiCode size={24} />,
-      title: 'Code Assistant',
-      description: 'Write, debug, and optimize code'
-    },
-    {
-      icon: <FiGlobe size={24} />,
-      title: 'Multilingual',
-      description: 'Communicate in multiple languages'
-    },
-    {
-      icon: <FiShield size={24} />,
-      title: 'Secure & Private',
-      description: 'Your conversations are encrypted'
-    }
-  ];
-
   const capabilities = [
     'Answer questions with detailed explanations',
     'Write and review code in multiple languages',
@@ -106,12 +83,6 @@ const Chat = () => {
                 onClick={() => setSelectedTab('models')}
               >
                 AI Models
-              </button>
-              <button 
-                className={`tab ${selectedTab === 'features' ? 'active' : ''}`}
-                onClick={() => setSelectedTab('features')}
-              >
-                Features
               </button>
               <button 
                 className={`tab ${selectedTab === 'capabilities' ? 'active' : ''}`}
@@ -156,21 +127,6 @@ const Chat = () => {
                 </div>
               )}
 
-              {selectedTab === 'features' && (
-                <div className="features-list">
-                  <h3>Platform Features</h3>
-                  {features.map((feature, idx) => (
-                    <div key={idx} className="feature-item">
-                      <div className="feature-icon">{feature.icon}</div>
-                      <div className="feature-content">
-                        <h4>{feature.title}</h4>
-                        <p>{feature.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
               {selectedTab === 'capabilities' && (
                 <div className="capabilities-list">
                   <h3>What I Can Do</h3>
@@ -198,7 +154,6 @@ const Chat = () => {
             </button>
             <div className="collapsed-icons">
               <FiCpu size={20} title="Models" />
-              <FiZap size={20} title="Features" />
               <FiCheckCircle size={20} title="Capabilities" />
             </div>
           </div>
