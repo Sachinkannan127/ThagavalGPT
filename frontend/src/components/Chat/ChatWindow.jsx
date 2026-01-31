@@ -10,7 +10,7 @@ import './ChatWindow.css';
 const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
   const [input, setInput] = useState('');
   const [charCount, setCharCount] = useState(0);
-  const { messages, loading, sendMessage, currentConversation, createConversation, responseLength, setResponseLength } = useContext(ChatContext);
+  const { messages, loading, sendMessage, currentConversation, createConversation, responseLength, setResponseLength, codeMode, setCodeMode } = useContext(ChatContext);
   const { isDark } = useContext(ThemeContext);
   const messagesEndRef = useRef(null);
 
@@ -226,6 +226,29 @@ const ChatWindow = ({ onToggleSidebar, sidebarOpen }) => {
               title="Comprehensive, detailed explanations"
             >
               Detailed
+            </button>
+          </div>
+        </div>
+        <div className="response-length-selector">
+          <label>💻 Code Mode:</label>
+          <div className="length-buttons">
+            <button 
+              type="button"
+              className={`length-btn ${codeMode ? 'active' : ''}`}
+              onClick={() => {
+                const newMode = !codeMode;
+                setCodeMode(newMode);
+                toast.success(
+                  newMode 
+                    ? '💻 Code Mode: ON - Optimized for code generation' 
+                    : '💬 Chat Mode: ON - General conversation', 
+                  { duration: 2000 }
+                );
+              }}
+              title="Toggle Code Generation Mode - Specialized AI for writing production-ready code"
+            >
+              <FiCode style={{ marginRight: '5px' }} />
+              {codeMode ? 'Code Gen ON' : 'Code Gen OFF'}
             </button>
           </div>
         </div>

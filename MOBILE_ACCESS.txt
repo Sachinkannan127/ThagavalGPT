@@ -1,0 +1,58 @@
+📱 MOBILE ACCESS GUIDE FOR THAGAVALGPT
+========================================
+
+✅ CONFIGURATION COMPLETED!
+
+Your Network IP: 10.216.254.73
+
+🖥️ SERVERS RUNNING:
+- Backend:  http://10.216.254.73:5000 ✅
+- Frontend: http://10.216.254.73:3000 ✅
+
+📱 TO ACCESS ON YOUR MOBILE:
+
+1. ENSURE SAME WIFI
+   - Your computer and phone must be on the SAME WiFi network
+   - Check WiFi name on both devices
+
+2. OPEN ON MOBILE BROWSER
+   - Open any browser (Chrome, Safari, Firefox)
+   - Type this URL: http://10.216.254.73:3000
+   - Bookmark it for easy access!
+
+3. TROUBLESHOOTING:
+   
+   ❌ If you see "Cannot connect":
+   - Check if both devices are on same WiFi
+   - Check if Windows Firewall is blocking port 5000 & 3000
+   - Try: Settings > Network > Private Network (not Public)
+   
+   ❌ If backend shows error:
+   - Restart backend: cd S:\pro\ThagavalGPT\ThagavalGPT\backend; node server.js
+   
+   ❌ If frontend shows error:
+   - Restart frontend: cd S:\pro\ThagavalGPT\ThagavalGPT\frontend; npm run dev
+
+🔥 WINDOWS FIREWALL FIX (If connection blocked):
+
+Run in PowerShell as Administrator:
+New-NetFirewallRule -DisplayName "Node Backend" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Vite Frontend" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
+
+🌐 ALTERNATIVE URLs TO TRY:
+- http://10.216.254.73:3000 (Primary - Network IP)
+- http://localhost:3000 (Only works on your computer)
+
+📝 NOTES:
+- Backend uses port 5000
+- Frontend uses port 3000
+- Network IP may change if you restart router
+- Always check if servers are running before accessing on mobile
+
+🚀 QUICK START COMMANDS:
+
+Backend:  cd S:\pro\ThagavalGPT\ThagavalGPT\backend && node server.js
+Frontend: cd S:\pro\ThagavalGPT\ThagavalGPT\frontend && npm run dev
+
+========================================
+Enjoy ThagavalGPT on your mobile! 🎉

@@ -227,14 +227,21 @@ export const ChatProvider = ({ children }) => {
       userMsg = { id: userMessageRef.id, ...userMessage };
       setMessages(prev => [...prev, userMsg]);
 
-      console.log('Sending message to backend API...');
+      console.log('Sending message to backend API with conversation history...');
+      
+      // Prepare conversation history (last 10 messages for context)
+      const conversationHistory = messages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
       
       // Call backend API for AI response
       const response = await api.post('/api/chat', {
         message: messageContent,
         conversationId: conversationId,
         responseLength: responseLength,
-        codeMode: codeMode
+        codeMode: codeMode,
+        conversationHistory: conversationHistory
       });
 
       console.log('📥 Received full response:', response);
@@ -298,16 +305,31 @@ export const ChatProvider = ({ children }) => {
     } catch (error) {
       console.error('Send message error:', error);
       
-      // Determine error message
+      // Determine error message with better clarity
       let errorMessage = 'Error sending message';
+      let showRetryOption = true;
       
       if (error.response) {
         // Server responded with error
+        const status = error.response.status;
         errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
+        
+        // Specific error messages based on status code
+        if (status === 401) {
+          errorMessage = '🔒 Authentication failed. Please log in again.';
+          showRetryOption = false;
+        } else if (status === 429) {
+          errorMessage = '⏳ Too many requests. Please wait a moment and try again.';
+        } else if (status === 503) {
+          errorMessage = '🔧 AI service is temporarily unavailable. Please try again.';
+        } else if (status >= 500) {
+          errorMessage = '⚠️ Server error occurred. Please try again in a moment.';
+        }
+        
         console.error('Server error:', error.response.status, error.response.data);
       } else if (error.request) {
         // Request made but no response
-        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
+        errorMessage = '🔌 Cannot connect to server. Please check:\n• Backend server is running\n• You are on the same network\n• VITE_API_URL is correct';
         console.error('Network error:', error.request);
       } else {
         // Something else happened
@@ -315,7 +337,10 @@ export const ChatProvider = ({ children }) => {
         console.error('Request setup error:', error.message);
       }
       
-      toast.error(errorMessage);
+      toast.error(errorMessage, { 
+        duration: 5000,
+        style: { maxWidth: '500px' }
+      });
       
       // Remove the user message if there's an error and we added one
       if (userMsg) {
